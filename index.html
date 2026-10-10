@@ -3,41 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Minecraft Skin Animator PRO</title>
+<title>Minecraft Skin Animator PRO 2.0</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body {
-    font-family: 'Segoe UI', sans-serif;
-    background: #1a1a1a; color: #fff;
-    display: flex; height: 100vh; overflow: hidden;
-  }
-  #sidebar {
-    width: 300px; background: #2a2a2a; padding: 12px;
-    overflow-y: auto; border-right: 2px solid #444;
-    transition: transform 0.3s;
-    flex-shrink: 0;
-  }
+  body { font-family: 'Segoe UI', sans-serif; background: #1a1a1a; color: #fff; display: flex; height: 100vh; overflow: hidden; }
+  #sidebar { width: 310px; background: #2a2a2a; padding: 12px; overflow-y: auto; border-right: 2px solid #444; transition: transform 0.3s; flex-shrink: 0; }
   #sidebar.hidden { transform: translateX(-100%); position: absolute; z-index: 100; height: 100%; }
   #sidebar h1 { font-size: 16px; color: #4CAF50; text-align: center; margin-bottom: 8px; }
-  #sidebar h2 {
-    font-size: 13px; margin: 12px 0 6px; color: #4CAF50;
-    border-bottom: 1px solid #444; padding-bottom: 4px;
-    cursor: pointer; user-select: none;
-  }
+  #sidebar h2 { font-size: 13px; margin: 12px 0 6px; color: #4CAF50; border-bottom: 1px solid #444; padding-bottom: 4px; cursor: pointer; user-select: none; }
   #sidebar h2::before { content: '▼ '; font-size: 10px; }
   #sidebar h2.collapsed::before { content: '▶ '; }
   .section { overflow: hidden; transition: max-height 0.3s; }
   .section.collapsed { max-height: 0 !important; }
   label { display: block; font-size: 12px; margin: 6px 0 3px; color: #ccc; }
   input[type="file"], input[type="text"], input[type="number"], select {
-    width: 100%; padding: 6px; background: #1a1a1a;
-    border: 1px solid #555; color: #fff; border-radius: 4px; font-size: 12px;
+    width: 100%; padding: 6px; background: #1a1a1a; border: 1px solid #555; color: #fff; border-radius: 4px; font-size: 12px;
   }
   input[type="range"] { width: 100%; }
   button {
-    padding: 7px 10px; margin: 4px 0; background: #4CAF50;
-    border: none; color: #fff; border-radius: 4px; cursor: pointer;
-    font-size: 12px; transition: 0.15s;
+    padding: 7px 10px; margin: 4px 0; background: #4CAF50; border: none; color: #fff;
+    border-radius: 4px; cursor: pointer; font-size: 12px; transition: 0.15s;
   }
   button:hover { background: #45a049; }
   button:active { transform: scale(0.97); }
@@ -49,96 +34,84 @@
   button.blue:hover { background: #1976D2; }
   button.purple { background: #9C27B0; }
   button.purple:hover { background: #7B1FA2; }
+  button.orange { background: #FF9800; }
+  button.orange:hover { background: #F57C00; }
   #canvas-container { flex: 1; position: relative; background: #87CEEB; touch-action: none; }
   #canvas-container canvas { display: block; }
   #status {
-    position: absolute; top: 10px; left: 10px;
-    background: rgba(0,0,0,0.75); padding: 6px 10px;
-    border-radius: 4px; font-size: 11px; z-index: 10;
-    pointer-events: none;
+    position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.75); padding: 6px 10px;
+    border-radius: 4px; font-size: 11px; z-index: 10; pointer-events: none;
   }
   #menuToggle {
-    position: absolute; top: 10px; right: 10px; z-index: 20;
-    width: 40px; height: 40px; border-radius: 50%;
-    background: #4CAF50; border: none; color: #fff;
-    font-size: 18px; cursor: pointer; display: none;
+    position: absolute; top: 10px; right: 10px; z-index: 20; width: 40px; height: 40px; border-radius: 50%;
+    background: #4CAF50; border: none; color: #fff; font-size: 18px; cursor: pointer; display: none;
   }
   .color-row { display: flex; align-items: center; gap: 6px; margin: 4px 0; }
-  .color-row input[type="color"] {
-    width: 36px; height: 28px; padding: 0;
-    border: 1px solid #555; background: none;
-  }
+  .color-row input[type="color"] { width: 36px; height: 28px; padding: 0; border: 1px solid #555; background: none; }
   .color-row input[type="range"] { flex: 1; }
   .btn-row { display: flex; gap: 4px; flex-wrap: wrap; }
   .btn-row button { flex: 1; min-width: 60px; }
   .hint { font-size: 10px; color: #888; margin-top: 3px; line-height: 1.4; }
-  .item-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
-  }
+  .item-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; }
   .item-btn {
-    padding: 8px 4px; font-size: 11px; background: #3a3a3a;
-    border: 1px solid #555; border-radius: 4px;
-    cursor: pointer; text-align: center; color: #fff;
+    padding: 4px 2px; font-size: 9px; background: #3a3a3a; border: 1px solid #555;
+    border-radius: 4px; cursor: pointer; text-align: center; color: #fff;
+    display: flex; flex-direction: column; align-items: center;
   }
   .item-btn:hover { background: #4a4a4a; }
   .item-btn.active { background: #4CAF50; border-color: #4CAF50; }
-  .item-btn .icon { font-size: 18px; display: block; margin-bottom: 2px; }
+  .item-btn canvas { image-rendering: pixelated; width: 32px; height: 32px; }
+  .loc-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; }
+  .loc-btn {
+    padding: 6px 4px; font-size: 11px; background: #3a3a3a; border: 1px solid #555;
+    border-radius: 4px; cursor: pointer; text-align: center; color: #fff;
+  }
+  .loc-btn:hover { background: #4a4a4a; }
+  .loc-btn.active { background: #FF9800; border-color: #FF9800; }
+
+  #anim-panel {
+    position: absolute; top: 60px; right: 10px; width: 240px;
+    background: rgba(30,30,30,0.95); border: 2px solid #9C27B0; border-radius: 8px;
+    padding: 10px; z-index: 14; max-height: calc(100vh - 80px); overflow-y: auto; display: none;
+  }
+  #anim-panel.open { display: block; }
+  #anim-panel h3 { font-size: 12px; color: #9C27B0; margin-bottom: 6px; border-bottom: 1px solid #444; padding-bottom: 3px; }
+  #anim-panel .part-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; margin-bottom: 8px; }
+  #anim-panel .part-buttons button { margin: 0; padding: 6px 2px; font-size: 10px; background: #3a3a3a; }
+  #anim-panel .part-buttons button.active { background: #9C27B0; }
+  .slider-row { display: flex; align-items: center; gap: 4px; margin: 4px 0; }
+  .slider-row label { width: 20px; font-size: 11px; margin: 0; color: #FFC107; font-weight: bold; }
+  .slider-row input[type="range"] { flex: 1; }
+  .slider-row .val { width: 38px; font-size: 10px; color: #aaa; text-align: right; }
 
   #timeline {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    height: 180px; background: rgba(20,20,20,0.95);
-    border-top: 2px solid #4CAF50;
+    position: absolute; bottom: 0; left: 0; right: 0; height: 200px;
+    background: rgba(20,20,20,0.98); border-top: 2px solid #4CAF50;
     padding: 8px; z-index: 15; display: flex; flex-direction: column;
   }
   #timeline.hidden { display: none; }
-  #timeline-header {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 6px; font-size: 12px;
-  }
-  #timeline-body {
-    flex: 1; overflow-x: auto; overflow-y: auto;
-    background: #111; border-radius: 4px; padding: 4px;
-    display: flex; flex-direction: column; gap: 2px;
-  }
-  .keyframe-track {
-    display: flex; align-items: center; gap: 4px;
-    height: 26px; background: #222; border-radius: 3px;
-    padding: 0 4px; min-width: max-content;
-  }
-  .track-label {
-    width: 90px; font-size: 10px; color: #aaa;
-    flex-shrink: 0;
-  }
-  .track-slots {
-    display: flex; gap: 2px; flex: 1;
-  }
+  #timeline-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 12px; }
+  #timeline-body { flex: 1; overflow: auto; background: #111; border-radius: 4px; padding: 4px; }
+  .keyframe-track { display: flex; align-items: center; gap: 4px; min-height: 24px; margin-bottom: 2px; }
+  .track-label { width: 80px; font-size: 10px; color: #aaa; flex-shrink: 0; }
+  .track-slots { display: flex; gap: 2px; }
   .keyframe-slot {
-    width: 22px; height: 20px; background: #333;
-    border: 1px solid #444; border-radius: 2px;
-    cursor: pointer; flex-shrink: 0; font-size: 9px;
-    display: flex; align-items: center; justify-content: center;
-    color: #666;
+    width: 20px; height: 20px; background: #333; border: 1px solid #444;
+    border-radius: 2px; cursor: pointer; flex-shrink: 0; font-size: 10px;
+    display: flex; align-items: center; justify-content: center; color: #666;
   }
-  .keyframe-slot.has-keyframe {
-    background: #4CAF50; color: #fff; border-color: #4CAF50;
-  }
+  .keyframe-slot.has-keyframe { background: #4CAF50; color: #fff; border-color: #4CAF50; }
   .keyframe-slot.current { outline: 2px solid #FFC107; }
-  #timeline-controls {
-    display: flex; gap: 6px; margin-bottom: 6px; align-items: center;
-  }
+  #timeline-controls { display: flex; gap: 4px; margin-bottom: 4px; align-items: center; flex-wrap: wrap; }
   #timeline-controls button { margin: 0; padding: 4px 8px; font-size: 11px; }
-  #timeline-controls input[type="range"] { flex: 1; }
+  #tlSlider { flex: 1; min-width: 100px; }
 
-  #teleport-overlay {
-    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-    z-index: 5; pointer-events: none;
-  }
+  #teleport-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 5; pointer-events: none; }
   #teleport-indicator {
     position: absolute; width: 60px; height: 60px;
     border: 3px solid #FFC107; border-radius: 50%;
     transform: translate(-50%, -50%); pointer-events: none;
-    opacity: 0; transition: opacity 0.15s;
-    box-shadow: 0 0 20px #FFC10788;
+    opacity: 0; transition: opacity 0.15s; box-shadow: 0 0 20px #FFC10788;
   }
   #teleport-indicator.active { opacity: 1; }
   #teleport-indicator::before {
@@ -147,27 +120,45 @@
     transform: translate(-50%, -50%); border-radius: 50%;
   }
 
+  #buildModeIndicator {
+    position: absolute; top: 60px; left: 50%; transform: translateX(-50%);
+    background: rgba(255,152,0,0.9); color: #fff; padding: 6px 14px;
+    border-radius: 20px; font-size: 12px; font-weight: bold;
+    z-index: 20; display: none;
+  }
+  #buildModeIndicator.active { display: block; }
+
   #toggleTimeline {
     position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
-    z-index: 16; padding: 8px 20px; background: #9C27B0;
-    border: none; color: #fff; border-radius: 20px; cursor: pointer;
-    font-size: 12px;
+    z-index: 16; padding: 8px 20px; background: #9C27B0; border: none;
+    color: #fff; border-radius: 20px; cursor: pointer; font-size: 12px;
   }
-  #toggleTimeline:hover { background: #7B1FA2; }
+  #toggleAnimPanel {
+    position: absolute; top: 10px; right: 60px; z-index: 20;
+    padding: 8px 12px; background: #9C27B0; border: none;
+    color: #fff; border-radius: 20px; cursor: pointer; font-size: 12px;
+  }
+  #toggleBuildMode {
+    position: absolute; top: 10px; right: 160px; z-index: 20;
+    padding: 8px 12px; background: #FF9800; border: none;
+    color: #fff; border-radius: 20px; cursor: pointer; font-size: 12px;
+  }
 
   @media (max-width: 768px) {
     #sidebar { width: 85%; max-width: 320px; position: absolute; z-index: 100; height: 100%; transform: translateX(-100%); }
     #sidebar.open { transform: translateX(0); }
     #menuToggle { display: block; }
+    #anim-panel { top: auto; bottom: 210px; right: 5px; width: 200px; }
+    #toggleBuildMode { right: 110px; top: 10px; padding: 6px 8px; font-size: 11px; }
+    #toggleAnimPanel { right: 55px; padding: 6px 8px; font-size: 11px; }
   }
-
   .chroma-note { font-size: 10px; color: #FFC107; margin-top: 3px; }
 </style>
 </head>
 <body>
 
 <div id="sidebar">
-  <h1>🎮 Skin Animator PRO</h1>
+  <h1>🎮 Skin Animator 2.0</h1>
 
   <h2>1. Скин</h2>
   <div class="section">
@@ -181,28 +172,76 @@
 
   <h2>2. Предметы в руках</h2>
   <div class="section">
-    <div class="item-grid" id="itemGrid">
-      <div class="item-btn active" data-item="none"><span class="icon">🚫</span>Нет</div>
-      <div class="item-btn" data-item="sword_diamond"><span class="icon">⚔️</span>Алмаз. меч</div>
-      <div class="item-btn" data-item="sword_iron"><span class="icon">🗡️</span>Желез. меч</div>
-      <div class="item-btn" data-item="sword_netherite"><span class="icon">🖤</span>Незер. меч</div>
-      <div class="item-btn" data-item="mace"><span class="icon">🔨</span>Булава</div>
-      <div class="item-btn" data-item="fishing_rod"><span class="icon">🎣</span>Удочка</div>
-      <div class="item-btn" data-item="ender_pearl"><span class="icon">🟣</span>Эндерпёрл</div>
-      <div class="item-btn" data-item="bow"><span class="icon">🏹</span>Лук</div>
-      <div class="item-btn" data-item="pickaxe"><span class="icon">⛏️</span>Кирка</div>
-      <div class="item-btn" data-item="block_grass"><span class="icon">🟩</span>Блок травы</div>
-      <div class="item-btn" data-item="block_stone"><span class="icon">⬜</span>Камень</div>
-      <div class="item-btn" data-item="torch"><span class="icon">🔥</span>Факел</div>
-    </div>
+    <label>Категория</label>
+    <select id="itemCategory">
+      <option value="swords">⚔️ Мечи</option>
+      <option value="tools">⛏️ Инструменты</option>
+      <option value="weapons">🔱 Оружие</option>
+      <option value="food">🍎 Еда</option>
+      <option value="blocks">🧱 Блоки</option>
+      <option value="misc">✨ Разное</option>
+    </select>
+    <div class="item-grid" id="itemGrid" style="margin-top:6px;"></div>
     <label style="margin-top:8px;">Рука для предмета</label>
     <select id="handSelect">
       <option value="right">Правая</option>
       <option value="left">Левая</option>
     </select>
+    <div class="hint">Клик по предмету — взять в руку. Текстуры как в игре.</div>
   </div>
 
-  <h2>3. Анимация</h2>
+  <h2>3. Локация</h2>
+  <div class="section">
+    <div class="loc-grid" id="locGrid">
+      <div class="loc-btn" data-loc="plains">🌾 Равнина</div>
+      <div class="loc-btn active" data-loc="forest">🌲 Лес</div>
+      <div class="loc-btn" data-loc="desert">🏜️ Пустыня</div>
+      <div class="loc-btn" data-loc="snow">❄️ Тундра</div>
+      <div class="loc-btn" data-loc="river">💧 Река</div>
+      <div class="loc-btn" data-loc="nether">🔥 Незер</div>
+      <div class="loc-btn" data-loc="end">🌌 Энд</div>
+      <div class="loc-btn" data-loc="village">🏘️ Деревня</div>
+      <div class="loc-btn" data-loc="ocean">🌊 Океан</div>
+      <div class="loc-btn" data-loc="cave">⛏️ Пещера</div>
+    </div>
+    <button class="orange" id="regenerateLoc" style="margin-top:6px;">🔄 Сгенерировать заново</button>
+    <label>Деревьев / кустов</label>
+    <input type="range" id="locDensity" min="0" max="30" value="10">
+    <div class="hint">Каждая генерация уникальна</div>
+  </div>
+
+  <h2>4. Строительство</h2>
+  <div class="section">
+    <label>Блок для постройки</label>
+    <select id="buildBlock">
+      <option value="grass">🟩 Трава</option>
+      <option value="dirt">🟫 Земля</option>
+      <option value="stone">⬜ Камень</option>
+      <option value="cobblestone">🪨 Булыжник</option>
+      <option value="wood">🪵 Дерево</option>
+      <option value="planks">🟫 Доски</option>
+      <option value="sand">🟨 Песок</option>
+      <option value="sandstone">🟧 Песчаник</option>
+      <option value="brick">🧱 Кирпич</option>
+      <option value="glass">🔷 Стекло</option>
+      <option value="glowstone">✨ Светокамень</option>
+      <option value="netherrack">🔥 Незерак</option>
+      <option value="obsidian">⬛ Обсидиан</option>
+      <option value="diamond">💎 Алмазный блок</option>
+      <option value="gold">🟨 Золотой блок</option>
+      <option value="emerald">💚 Изумрудный блок</option>
+      <option value="tnt">💥 ТНТ</option>
+      <option value="command_block">🟪 Командный блок</option>
+    </select>
+    <button class="orange" id="toggleBuild">🧱 Включить режим строительства</button>
+    <div class="hint">
+      Тап по сцене — поставить блок в эту точку.<br>
+      Долгое нажатие на блок — удалить.
+    </div>
+    <button class="danger" id="clearBuild" style="margin-top:6px;">🗑️ Удалить все блоки</button>
+  </div>
+
+  <h2>5. Анимация</h2>
   <div class="section">
     <select id="animSelect">
       <option value="idle">Стойка (Idle)</option>
@@ -216,6 +255,9 @@
       <option value="mace_smash">Удар булавы</option>
       <option value="fishing">Заброс удочки</option>
       <option value="throw_pearl">Бросок эндерпёрла</option>
+      <option value="bow_shoot">Выстрел из лука</option>
+      <option value="eat">Кушает</option>
+      <option value="mining">Копает</option>
       <option value="custom">🎬 СВОЯ (конструктор)</option>
     </select>
     <div class="btn-row">
@@ -226,7 +268,7 @@
     <input type="range" id="speedRange" min="0.1" max="3" step="0.1" value="1">
   </div>
 
-  <h2>4. Фон</h2>
+  <h2>6. Фон</h2>
   <div class="section">
     <div class="color-row">
       <input type="color" id="bgColor" value="#87CEEB">
@@ -245,48 +287,14 @@
     <div class="chroma-note">💡 Хромакей: для наложения в видеоредакторе</div>
   </div>
 
-  <h2>5. Пол</h2>
-  <div class="section">
-    <select id="floorType">
-      <option value="grass">🌱 Трава</option>
-      <option value="stone">🪨 Камень</option>
-      <option value="sand">🏖️ Песок</option>
-      <option value="wood">🪵 Дерево</option>
-      <option value="netherrack">🔥 Незерак</option>
-      <option value="snow">❄️ Снег</option>
-      <option value="none">❌ Нет (хромакей)</option>
-    </select>
-    <div class="btn-row">
-      <button class="secondary" id="floorLess">-</button>
-      <button class="secondary" id="floorMore">+</button>
-    </div>
-    <div class="hint">Размер пола</div>
-  </div>
-
-  <h2>6. Мир</h2>
-  <div class="section">
-    <div class="btn-row">
-      <button id="addTree">🌳 Дерево</button>
-      <button id="addBlock">🧱 Блок</button>
-    </div>
-    <div class="btn-row">
-      <button id="addHouse">🏠 Дом</button>
-      <button id="addStruct">🏛️ Пирамида</button>
-    </div>
-    <button id="clearScene" class="danger">🗑️ Очистить сцену</button>
-  </div>
-
   <h2>7. Управление</h2>
   <div class="section">
     <select id="controlMode">
       <option value="orbit">🖱️ Орбита (стандарт)</option>
-      <option value="teleport">🎯 Телепорт (тап по сцене)</option>
+      <option value="teleport">🎯 Телепорт</option>
       <option value="follow">📷 Следит за игроком</option>
     </select>
-    <div class="hint">
-      <b>Орбита:</b> ЛКМ/1 палец — вращение, колесо/2 пальца — зум<br>
-      <b>Телепорт:</b> тапни в точку — камера плавно переместится туда
-    </div>
+    <div class="hint">Тап по сцене — в режиме строительства ставит блок, в телепорте — телепорт</div>
   </div>
 
   <h2>8. Экспорт</h2>
@@ -304,6 +312,7 @@
   <h2>9. Конструктор анимаций</h2>
   <div class="section">
     <button class="purple" id="toggleTimelineBtn">🎬 Открыть таймлайн</button>
+    <button class="purple" id="togglePanelBtn">🎛️ Панель поворотов</button>
     <button class="purple" id="newAnimBtn">➕ Новая анимация</button>
     <label>Название</label>
     <input type="text" id="animName" value="Моя анимация">
@@ -311,7 +320,6 @@
       <button class="blue" id="saveAnimBtn">💾 Сохранить</button>
       <button class="secondary" id="loadAnimBtn">📂 Загрузить</button>
     </div>
-    <div class="hint">Экспорт в JSON-файл и импорт обратно</div>
   </div>
 </div>
 
@@ -319,25 +327,57 @@
 
 <div id="canvas-container">
   <div id="status">Готов</div>
-  <div id="teleport-overlay">
-    <div id="teleport-indicator"></div>
-  </div>
+  <div id="buildModeIndicator">🧱 Режим строительства: тап по сцене</div>
+  <div id="teleport-overlay"><div id="teleport-indicator"></div></div>
+  <button id="toggleBuildMode">🧱 Строить</button>
+  <button id="toggleAnimPanel">🎛️ Панель</button>
   <button id="toggleTimeline">🎬 Таймлайн</button>
+
+  <div id="anim-panel">
+    <h3>🎛️ Управление частями</h3>
+    <div class="part-buttons" id="partButtons">
+      <button data-part="head">Голова</button>
+      <button data-part="body">Тело</button>
+      <button data-part="rightArm">Пр.рука</button>
+      <button data-part="leftArm">Лев.рука</button>
+      <button data-part="rightLeg">Пр.нога</button>
+      <button data-part="leftLeg">Лев.нога</button>
+      <button data-part="root" style="grid-column: span 3;">Корень (вся модель)</button>
+    </div>
+    <div class="slider-row">
+      <label>X</label>
+      <input type="range" id="rotX" min="-180" max="180" value="0" step="1">
+      <span class="val" id="rotXVal">0°</span>
+    </div>
+    <div class="slider-row">
+      <label>Y</label>
+      <input type="range" id="rotY" min="-180" max="180" value="0" step="1">
+      <span class="val" id="rotYVal">0°</span>
+    </div>
+    <div class="slider-row">
+      <label>Z</label>
+      <input type="range" id="rotZ" min="-180" max="180" value="0" step="1">
+      <span class="val" id="rotZVal">0°</span>
+    </div>
+    <div class="btn-row" style="margin-top:6px;">
+      <button class="blue" id="applyAndKey">✓ Ключ</button>
+      <button class="secondary" id="resetPart">↺ Сброс</button>
+    </div>
+  </div>
 
   <div id="timeline" class="hidden">
     <div id="timeline-header">
-      <span>🎬 Конструктор: <b id="currentAnimName">Моя анимация</b></span>
-      <span>Кадров: <b id="frameCount">20</b> | FPS: <b id="fpsDisplay">20</b></span>
+      <span>🎬 <b id="currentAnimName">Моя анимация</b></span>
+      <span>Кадр: <b id="tlFrameLabel">0/19</b></span>
     </div>
     <div id="timeline-controls">
       <button class="secondary" id="tlPrev">◀</button>
       <button class="blue" id="tlPlay">▶</button>
       <button class="secondary" id="tlNext">▶</button>
-      <button class="secondary" id="tlAddFrame">+ кадр</button>
-      <button class="secondary" id="tlRemoveFrame">- кадр</button>
-      <button class="danger" id="tlClear">🗑 Ключи</button>
+      <button class="secondary" id="tlAddFrame">+</button>
+      <button class="secondary" id="tlRemoveFrame">−</button>
+      <button class="danger" id="tlClear">🗑</button>
       <input type="range" id="tlSlider" min="0" max="19" value="0">
-      <span id="tlFrameLabel">0/19</span>
     </div>
     <div id="timeline-body"></div>
   </div>
@@ -356,10 +396,418 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
+// ==================== ТЕКСТУРЫ ПРЕДМЕТОВ (2D PIXEL-ART как в Minecraft) ====================
+// Рисуем текстуры 16x16 на canvas
+const textureCache = {};
+
+function createPixelTexture(drawFn, size = 16) {
+  const c = document.createElement('canvas');
+  c.width = size; c.height = size;
+  const ctx = c.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  drawFn(ctx, size);
+  const tex = new THREE.CanvasTexture(c);
+  tex.magFilter = THREE.NearestFilter;
+  tex.minFilter = THREE.NearestFilter;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.needsUpdate = true;
+  return tex;
+}
+
+// ===== МЕЧИ =====
+function drawSword(ctx, bladeColor, guardColor, handleColor = '#5A3A1A') {
+  // 16x16, меч по диагонали
+  ctx.clearRect(0,0,16,16);
+  // Лезвие (диагональ)
+  ctx.fillStyle = bladeColor;
+  for (let i = 0; i < 10; i++) ctx.fillRect(5+i, 12-i, 2, 1);
+  // Обводка лезвия (тень)
+  ctx.fillStyle = '#00000044';
+  for (let i = 0; i < 10; i++) ctx.fillRect(5+i, 13-i, 1, 1);
+  // Гарда
+  ctx.fillStyle = guardColor;
+  ctx.fillRect(4, 11, 4, 2);
+  ctx.fillRect(6, 9, 2, 4);
+  // Рукоять
+  ctx.fillStyle = handleColor;
+  ctx.fillRect(3, 14, 3, 1);
+  ctx.fillRect(2, 15, 3, 1);
+}
+function texSword(color) {
+  const key = 'sword_' + color;
+  if (textureCache[key]) return textureCache[key];
+  textureCache[key] = createPixelTexture((ctx) => drawSword(ctx, color, '#8B5A2B'));
+  return textureCache[key];
+}
+
+// ===== ТОПОР =====
+function texAxe(color) {
+  const key = 'axe_' + color;
+  if (textureCache[key]) return textureCache[key];
+  textureCache[key] = createPixelTexture((ctx) => {
+    ctx.clearRect(0,0,16,16);
+    ctx.fillStyle = '#8B5A2B';
+    for (let i = 0; i < 10; i++) ctx.fillRect(5+i, 15-i, 1, 1); // ручка
+    // Лезвие
+    ctx.fillStyle = color;
+    ctx.fillRect(9, 2, 6, 5);
+    ctx.fillRect(8, 3, 1, 3);
+    // Тень
+    ctx.fillStyle = '#00000066';
+    ctx.fillRect(9, 6, 6, 1);
+    ctx.fillRect(14, 2, 1, 5);
+    // Блик
+    ctx.fillStyle = '#FFFFFF44';
+    ctx.fillRect(10, 3, 4, 1);
+  });
+  return textureCache[key];
+}
+
+// ===== КИРКА =====
+function texPickaxe(color) {
+  const key = 'pickaxe_' + color;
+  if (textureCache[key]) return textureCache[key];
+  textureCache[key] = createPixelTexture((ctx) => {
+    ctx.clearRect(0,0,16,16);
+    // Ручка
+    ctx.fillStyle = '#8B5A2B';
+    for (let i = 0; i < 10; i++) ctx.fillRect(5+i, 15-i, 1, 1);
+    // Головка кирки
+    ctx.fillStyle = color;
+    ctx.fillRect(3, 3, 4, 2);
+    ctx.fillRect(8, 1, 5, 2);
+    ctx.fillRect(12, 3, 2, 2);
+    ctx.fillRect(11, 5, 2, 2);
+    ctx.fillRect(1, 4, 2, 2);
+    ctx.fillRect(2, 6, 2, 1);
+    // Тень
+    ctx.fillStyle = '#00000066';
+    ctx.fillRect(3, 5, 4, 1);
+    ctx.fillRect(8, 3, 5, 1);
+  });
+  return textureCache[key];
+}
+
+// ===== ЛОПАТА =====
+function texShovel(color) {
+  const key = 'shovel_' + color;
+  if (textureCache[key]) return textureCache[key];
+  textureCache[key] = createPixelTexture((ctx) => {
+    ctx.clearRect(0,0,16,16);
+    ctx.fillStyle = '#8B5A2B';
+    for (let i = 0; i < 10; i++) ctx.fillRect(5+i, 15-i, 1, 1);
+    ctx.fillStyle = color;
+    ctx.fillRect(10, 2, 4, 4);
+    ctx.fillRect(11, 6, 2, 1);
+    ctx.fillStyle = '#00000066';
+    ctx.fillRect(10, 6, 4, 1);
+    ctx.fillRect(13, 2, 1, 4);
+  });
+  return textureCache[key];
+}
+
+// ===== БУЛАВА =====
+function texMace() {
+  if (textureCache.mace) return textureCache.mace;
+  textureCache.mace = createPixelTexture((ctx) => {
+    ctx.clearRect(0,0,16,16);
+    // Ручка
+    ctx.fillStyle = '#8B5A2B';
+    for (let i = 0; i < 8; i++) ctx.fillRect(6+i, 15-i, 1, 1);
+    // Основание (тяжёлое)
+    ctx.fillStyle = '#7A7A7A';
+    ctx.fillRect(9, 2, 5, 5);
+    // Шипы
+    ctx.fillStyle = '#AAAAAA';
+    ctx.fillRect(8, 3, 1, 3);
+    ctx.fillRect(14, 3, 1, 3);
+    ctx.fillRect(9, 1, 5, 1);
+    ctx.fillRect(9, 7, 5, 1);
+    // Тени
+    ctx.fillStyle = '#00000066';
+    ctx.fillRect(9, 6, 5, 1);
+    ctx.fillRect(13, 2, 1, 5);
+  });
+  return textureCache.mace;
+}
+
+// ===== ТРЕЗУБЕЦ =====
+function texTrident() {
+  if (textureCache.trident) return textureCache.trident;
+  textureCache.trident = createPixelTexture((ctx) => {
+    ctx.clearRect(0,0,16,16);
+    // Древко
+    ctx.fillStyle = '#2E5A7A';
+    for (let i = 0; i < 12; i++) ctx.fillRect(7, 4+i, 2, 1);
+    // Зубцы
+    ctx.fillStyle = '#4AB8D8';
+    ctx.fillRect(4, 1, 1, 4);
+    ctx.fillRect(11, 1, 1, 4);
+    ctx.fillRect(7, 1, 2, 3);
+    // Соединение
+    ctx.fillRect(4, 5, 9, 1);
+    // Блики
+    ctx.fillStyle = '#FFFFFF88';
+    ctx.fillRect(7, 2, 1, 2);
+    ctx.fillRect(5, 2, 1, 2);
+    ctx.fillRect(11, 2, 1, 2);
+  });
+  return textureCache.trident;
+}
+
+// ===== КОПЬЁ =====
+function texSpear() {
+  if (textureCache.spear) return textureCache.spear;
+  textureCache.spear = createPixelTexture((ctx) => {
+    ctx.clearRect(0,0,16,16);
+    // Древко
+    ctx.fillStyle = '#8B5A2B';
+    for (let i = 0; i < 13; i++) ctx.fillRect(7, 2+i, 2, 1);
+    // Наконечник
+    ctx.fillStyle = '#CCCCCC';
+    ctx.fillRect(6, 0, 4, 3);
+    ctx.fillRect(7, 3, 2, 1);
+    ctx.fillStyle = '#FFFFFF88';
+    ctx.fillRect(7, 0, 1, 3);
+  });
+  return textureCache.spear;
+}
+
+// ===== ЛУК =====
+function texBow() {
+  if (textureCache.bow) return textureCache.bow;
+  textureCache.bow = createPixelTexture((ctx) => {
+    ctx.clearRect(0,0,16,16);
+    // Дуга лука
+    ctx.fillStyle = '#8B5A2B';
+    ctx.fillRect(11, 1, 2, 2);
+    ctx.fillRect(12, 3, 2, 2);
+    ctx.fillRect(13, 5, 1, 6);
+    ctx.fillRect(12, 11, 2, 2);
+    ctx.fillRect(11, 13, 2, 2);
+    // Тетива
+    ctx.fillStyle = '#EEEEEE';
+    ctx.fillRect(10, 2, 1, 12);
+  });
+  return textureCache.bow;
+}
+
+// ===== УДОЧКА =====
+function texFishingRod() {
+  if (textureCache.rod) return textureCache.rod;
+  textureCache.rod = createPixelTexture((ctx) => {
+    ctx.clearRect(0,0,16,16);
+    // Удилище
+    ctx.fillStyle = '#8B5A2B';
+    for (let i = 0; i < 11; i++) ctx.fillRect(4+i, 12-i, 1, 1);
+    // Более светлый кончик
+    ctx.fillStyle = '#AA7A4A';
+    ctx.fillRect(13, 2, 1, 1);
+    // Катушка
+    ctx.fillStyle = '#5A3A1A';
+    ctx.fillRect(4, 9, 3, 3);
+    // Крючок/нить
+    ctx.fillStyle = '#EEEEEE';
+    ctx.fillRect(2, 14, 1, 1);
+    ctx.fillRect(2, 13, 1, 1);
+  });
+  return textureCache.rod;
+}
+
+// ===== ЭНДЕРПЁРЛ =====
+function texEnderPearl() {
+  if (textureCache.pearl) return textureCache.pearl;
+  textureCache.pearl = createPixelTexture((ctx) => {
+    ctx.clearRect(0,0,16,16);
+    // Сфера
+    ctx.fillStyle = '#1A4A3A';
+    ctx.fillRect(5, 4, 6, 8);
+    ctx.fillRect(4, 5, 8, 6);
+    ctx.fillRect(6, 3, 4, 10);
+    // Блик
+    ctx.fillStyle = '#4AE9C8';
+    ctx.fillRect(6, 5, 3, 3);
+    ctx.fillStyle = '#7FFFDA';
+    ctx.fillRect(7, 6, 1, 1);
+  });
+  return textureCache.pearl;
+}
+
+// ===== БЛОК (2D текстура) =====
+function texBlock(baseColor, accents = []) {
+  const key = 'block_' + baseColor + JSON.stringify(accents);
+  if (textureCache[key]) return textureCache[key];
+  textureCache[key] = createPixelTexture((ctx) => {
+    ctx.fillStyle = baseColor;
+    ctx.fillRect(0, 0, 16, 16);
+    // Шум
+    for (let i = 0; i < 40; i++) {
+      ctx.fillStyle = 'rgba(0,0,0,' + (0.05 + Math.random() * 0.15) + ')';
+      ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
+    }
+    for (let i = 0; i < 20; i++) {
+      ctx.fillStyle = 'rgba(255,255,255,' + (0.05 + Math.random() * 0.1) + ')';
+      ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
+    }
+    // Дополнительные акценты
+    accents.forEach(([x, y, w, h, color]) => {
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, w, h);
+    });
+  });
+  return textureCache[key];
+}
+
+// ===== ЕДА =====
+function texFoodApple() {
+  if (textureCache.apple) return textureCache.apple;
+  textureCache.apple = createPixelTexture((ctx) => {
+    ctx.clearRect(0,0,16,16);
+    // Тело яблока
+    ctx.fillStyle = '#CC2222';
+    ctx.fillRect(5, 4, 6, 8);
+    ctx.fillRect(4, 6, 8, 5);
+    ctx.fillRect(6, 3, 4, 10);
+    // Блик
+    ctx.fillStyle = '#FF6666';
+    ctx.fillRect(5, 5, 2, 3);
+    // Хвостик
+    ctx.fillStyle = '#5A3A1A';
+    ctx.fillRect(7, 2, 1, 2);
+    // Листик
+    ctx.fillStyle = '#4CAF50';
+    ctx.fillRect(8, 2, 2, 1);
+  });
+  return textureCache.apple;
+}
+function texFoodBread() {
+  if (textureCache.bread) return textureCache.bread;
+  textureCache.bread = createPixelTexture((ctx) => {
+    ctx.clearRect(0,0,16,16);
+    ctx.fillStyle = '#C49144';
+    ctx.fillRect(3, 5, 10, 6);
+    ctx.fillRect(2, 6, 12, 4);
+    // Корочка
+    ctx.fillStyle = '#8B5A2B';
+    ctx.fillRect(2, 5, 12, 1);
+    ctx.fillRect(2, 11, 12, 1);
+    // Зёрнышки
+    ctx.fillStyle = '#FFE0A0';
+    ctx.fillRect(5, 7, 1, 1);
+    ctx.fillRect(8, 8, 1, 1);
+    ctx.fillRect(10, 7, 1, 1);
+  });
+  return textureCache.bread;
+}
+function texFoodGoldenApple() {
+  if (textureCache.gapple) return textureCache.gapple;
+  textureCache.gapple = createPixelTexture((ctx) => {
+    ctx.clearRect(0,0,16,16);
+    ctx.fillStyle = '#FFD700';
+    ctx.fillRect(5, 4, 6, 8);
+    ctx.fillRect(4, 6, 8, 5);
+    ctx.fillRect(6, 3, 4, 10);
+    ctx.fillStyle = '#FFFF88';
+    ctx.fillRect(5, 5, 2, 3);
+    ctx.fillStyle = '#5A3A1A';
+    ctx.fillRect(7, 2, 1, 2);
+    ctx.fillStyle = '#4CAF50';
+    ctx.fillRect(8, 2, 2, 1);
+  });
+  return textureCache.gapple;
+}
+
+// ===== ФАКЕЛ =====
+function texTorch() {
+  if (textureCache.torch) return textureCache.torch;
+  textureCache.torch = createPixelTexture((ctx) => {
+    ctx.clearRect(0,0,16,16);
+    // Ручка
+    ctx.fillStyle = '#8B5A2B';
+    ctx.fillRect(7, 8, 2, 8);
+    // Огонь
+    ctx.fillStyle = '#FF6B00';
+    ctx.fillRect(6, 4, 4, 4);
+    ctx.fillStyle = '#FFAA00';
+    ctx.fillRect(7, 5, 2, 3);
+    ctx.fillStyle = '#FFEE44';
+    ctx.fillRect(7, 6, 2, 1);
+  });
+  return textureCache.torch;
+}
+
+// ===== РЕГИСТРАЦИЯ ВСЕХ ПРЕДМЕТОВ =====
+const ITEMS = {
+  // Нет
+  none: { name: 'Нет', cat: 'misc', icon: '🚫', type: 'none' },
+
+  // Мечи
+  sword_wood: { name: 'Дерев. меч', cat: 'swords', tex: () => texSword('#8B5A2B'), type: 'flat' },
+  sword_stone: { name: 'Кам. меч', cat: 'swords', tex: () => texSword('#888888'), type: 'flat' },
+  sword_iron: { name: 'Жел. меч', cat: 'swords', tex: () => texSword('#CCCCCC'), type: 'flat' },
+  sword_gold: { name: 'Зол. меч', cat: 'swords', tex: () => texSword('#FFD700'), type: 'flat' },
+  sword_diamond: { name: 'Алм. меч', cat: 'swords', tex: () => texSword('#4AEDD9'), type: 'flat' },
+  sword_netherite: { name: 'Нез. меч', cat: 'swords', tex: () => texSword('#4A4048', '#2A2028'), type: 'flat' },
+
+  // Инструменты
+  pickaxe_wood: { name: 'Дерев. кирка', cat: 'tools', tex: () => texPickaxe('#8B5A2B'), type: 'flat' },
+  pickaxe_stone: { name: 'Кам. кирка', cat: 'tools', tex: () => texPickaxe('#888888'), type: 'flat' },
+  pickaxe_iron: { name: 'Жел. кирка', cat: 'tools', tex: () => texPickaxe('#CCCCCC'), type: 'flat' },
+  pickaxe_diamond: { name: 'Алм. кирка', cat: 'tools', tex: () => texPickaxe('#4AEDD9'), type: 'flat' },
+  pickaxe_netherite: { name: 'Нез. кирка', cat: 'tools', tex: () => texPickaxe('#4A4048'), type: 'flat' },
+  axe_iron: { name: 'Жел. топор', cat: 'tools', tex: () => texAxe('#CCCCCC'), type: 'flat' },
+  axe_diamond: { name: 'Алм. топор', cat: 'tools', tex: () => texAxe('#4AEDD9'), type: 'flat' },
+  axe_netherite: { name: 'Нез. топор', cat: 'tools', tex: () => texAxe('#4A4048'), type: 'flat' },
+  shovel_iron: { name: 'Жел. лопата', cat: 'tools', tex: () => texShovel('#CCCCCC'), type: 'flat' },
+  shovel_diamond: { name: 'Алм. лопата', cat: 'tools', tex: () => texShovel('#4AEDD9'), type: 'flat' },
+
+  // Оружие
+  mace: { name: 'Булава', cat: 'weapons', tex: texMace, type: 'flat' },
+  trident: { name: 'Трезубец', cat: 'weapons', tex: texTrident, type: 'flat' },
+  spear: { name: 'Копьё', cat: 'weapons', tex: texSpear, type: 'flat' },
+  bow: { name: 'Лук', cat: 'weapons', tex: texBow, type: 'flat' },
+  fishing_rod: { name: 'Удочка', cat: 'weapons', tex: texFishingRod, type: 'flat' },
+  ender_pearl: { name: 'Эндерпёрл', cat: 'weapons', tex: texEnderPearl, type: 'flat' },
+
+  // Еда
+  apple: { name: 'Яблоко', cat: 'food', tex: texFoodApple, type: 'flat' },
+  bread: { name: 'Хлеб', cat: 'food', tex: texFoodBread, type: 'flat' },
+  golden_apple: { name: 'Зол. яблоко', cat: 'food', tex: texFoodGoldenApple, type: 'flat' },
+
+  // Блоки в руке
+  block_grass: { name: 'Трава', cat: 'blocks', tex: () => texBlock('#4CAF50'), type: 'block3d', color: '#4CAF50', top: '#4CAF50', side: '#8B5A2B' },
+  block_dirt: { name: 'Земля', cat: 'blocks', tex: () => texBlock('#8B5A2B'), type: 'block3d', color: '#8B5A2B' },
+  block_stone: { name: 'Камень', cat: 'blocks', tex: () => texBlock('#888888'), type: 'block3d', color: '#888888' },
+  block_cobble: { name: 'Булыжник', cat: 'blocks', tex: () => texBlock('#777777', [[2,2,3,3,'#555'],[9,5,4,4,'#555'],[5,10,3,3,'#555']]), type: 'block3d', color: '#777777' },
+  block_wood: { name: 'Бревно', cat: 'blocks', tex: () => texBlock('#6B4423'), type: 'block3d', color: '#6B4423' },
+  block_planks: { name: 'Доски', cat: 'blocks', tex: () => texBlock('#A0522D'), type: 'block3d', color: '#A0522D' },
+  block_sand: { name: 'Песок', cat: 'blocks', tex: () => texBlock('#E8D28A'), type: 'block3d', color: '#E8D28A' },
+  block_sandstone: { name: 'Песчаник', cat: 'blocks', tex: () => texBlock('#E0B860'), type: 'block3d', color: '#E0B860' },
+  block_brick: { name: 'Кирпич', cat: 'blocks', tex: () => texBlock('#A0522D', [[0,5,16,1,'#FFF'],[8,0,1,5,'#FFF'],[0,11,16,1,'#FFF'],[8,6,1,5,'#FFF'],[4,12,1,4,'#FFF']]), type: 'block3d', color: '#A0522D' },
+  block_glass: { name: 'Стекло', cat: 'blocks', tex: () => texBlock('#AADDDD', [[1,1,1,14,'#FFF'],[14,1,1,14,'#FFF'],[1,1,14,1,'#FFF'],[1,14,14,1,'#FFF']]), type: 'block3d', color: '#AADDDD', transparent: true, opacity: 0.6 },
+  block_glowstone: { name: 'Светокамень', cat: 'blocks', tex: () => texBlock('#FFD700', [[3,3,2,2,'#FFFF88'],[11,5,2,2,'#FFFF88'],[6,11,2,2,'#FFFF88']]), type: 'block3d', color: '#FFD700', emissive: true },
+  block_netherrack: { name: 'Незерак', cat: 'blocks', tex: () => texBlock('#7A2A2A', [[3,3,3,3,'#5A1A1A'],[10,8,3,3,'#5A1A1A']]), type: 'block3d', color: '#7A2A2A' },
+  block_obsidian: { name: 'Обсидиан', cat: 'blocks', tex: () => texBlock('#1A0A2A', [[3,3,2,2,'#3A1A5A'],[9,9,2,2,'#3A1A5A']]), type: 'block3d', color: '#1A0A2A' },
+  block_diamond: { name: 'Алм. блок', cat: 'blocks', tex: () => texBlock('#4AEDD9', [[4,4,3,3,'#88FFEE'],[9,9,3,3,'#88FFEE']]), type: 'block3d', color: '#4AEDD9' },
+  block_gold: { name: 'Зол. блок', cat: 'blocks', tex: () => texBlock('#FFD700', [[4,4,3,3,'#FFFF88'],[9,9,3,3,'#FFFF88']]), type: 'block3d', color: '#FFD700' },
+  block_emerald: { name: 'Изумруд. блок', cat: 'blocks', tex: () => texBlock('#17DD62', [[4,4,3,3,'#88FFAA'],[9,9,3,3,'#88FFAA']]), type: 'block3d', color: '#17DD62' },
+  block_tnt: { name: 'ТНТ', cat: 'blocks', tex: () => texBlock('#CC2222', [[0,5,16,3,'#FFFFFF'],[0,10,16,3,'#FFFFFF'],[3,5,4,3,'#000000'],[3,10,4,3,'#000000']]), type: 'block3d', color: '#CC2222' },
+  block_command: { name: 'Ком. блок', cat: 'blocks', tex: () => texBlock('#9C27B0', [[3,3,10,2,'#FFAA00'],[3,11,10,2,'#FFAA00'],[5,5,6,6,'#E0AAFF']]), type: 'block3d', color: '#9C27B0' },
+
+  // Разное
+  torch: { name: 'Факел', cat: 'misc', tex: texTorch, type: 'flat' },
+  stick: { name: 'Палка', cat: 'misc', tex: () => createPixelTexture((ctx) => {
+    ctx.clearRect(0,0,16,16);
+    ctx.fillStyle = '#8B5A2B';
+    for (let i = 0; i < 11; i++) ctx.fillRect(3+i, 12-i, 2, 1);
+  }), type: 'flat' },
+};
+
 // ==================== СЦЕНА ====================
 const container = document.getElementById('canvas-container');
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x87CEEB);
+scene.fog = new THREE.Fog(0x87CEEB, 30, 100);
 
 const camera = new THREE.PerspectiveCamera(50, container.clientWidth/container.clientHeight, 0.1, 1000);
 camera.position.set(4, 4, 8);
@@ -373,7 +821,7 @@ renderer.outputColorSpace = THREE.SRGBColorSpace;
 container.appendChild(renderer.domElement);
 
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(0, 1.5, 0);
+controls.target.set(0, 1.2, 0);
 controls.enableDamping = true;
 controls.dampingFactor = 0.1;
 controls.maxPolarAngle = Math.PI / 2;
@@ -386,16 +834,15 @@ const sun = new THREE.DirectionalLight(0xffffff, 1.2);
 sun.position.set(5, 10, 5);
 sun.castShadow = true;
 sun.shadow.mapSize.set(1024, 1024);
-sun.shadow.camera.left = -15;
-sun.shadow.camera.right = 15;
-sun.shadow.camera.top = 15;
-sun.shadow.camera.bottom = -15;
+sun.shadow.camera.left = -20;
+sun.shadow.camera.right = 20;
+sun.shadow.camera.top = 20;
+sun.shadow.camera.bottom = -20;
 scene.add(sun);
 
 // ==================== СКИН ====================
 let skinModel = null;
 let bodyParts = {};
-let currentSkinTex = null;
 let heldItemMesh = null;
 
 function createDefaultSkin() {
@@ -404,85 +851,48 @@ function createDefaultSkin() {
   const ctx = c.getContext('2d');
   ctx.imageSmoothingEnabled = false;
   ctx.clearRect(0, 0, 64, 64);
-
-  // ===== ГОЛОВА =====
-  // top (8,0, 8x8) - волосы
   ctx.fillStyle = '#3A2418'; ctx.fillRect(8, 0, 8, 8);
-  // bottom (16,0, 8x8) - подбородок
   ctx.fillStyle = '#B88A62'; ctx.fillRect(16, 0, 8, 8);
-  // right side (0,8) - висок
   ctx.fillStyle = '#B88A62'; ctx.fillRect(0, 8, 8, 8);
   ctx.fillStyle = '#3A2418'; ctx.fillRect(0, 8, 8, 3);
-  // front лицо (8,8)
   ctx.fillStyle = '#B88A62'; ctx.fillRect(8, 8, 8, 8);
   ctx.fillStyle = '#3A2418'; ctx.fillRect(8, 8, 8, 2);
   ctx.fillStyle = '#FFFFFF'; ctx.fillRect(9, 11, 2, 2); ctx.fillRect(13, 11, 2, 2);
   ctx.fillStyle = '#3B2A1A'; ctx.fillRect(10, 12, 1, 1); ctx.fillRect(14, 12, 1, 1);
   ctx.fillStyle = '#7A4A2A'; ctx.fillRect(11, 14, 2, 1);
-  // left side (16,8)
   ctx.fillStyle = '#B88A62'; ctx.fillRect(16, 8, 8, 8);
   ctx.fillStyle = '#3A2418'; ctx.fillRect(16, 8, 8, 3);
-  // back (24,8)
   ctx.fillStyle = '#B88A62'; ctx.fillRect(24, 8, 8, 8);
   ctx.fillStyle = '#3A2418'; ctx.fillRect(24, 8, 8, 3);
-
-  // ===== ТЕЛО (8x12x4) =====
-  ctx.fillStyle = '#3A2418'; ctx.fillRect(20, 16, 8, 4); // top
-  ctx.fillStyle = '#2E4A8C'; ctx.fillRect(28, 16, 8, 4); // bottom
-  ctx.fillStyle = '#00A0FF'; ctx.fillRect(16, 20, 4, 12); // right
-  ctx.fillStyle = '#00A0FF'; ctx.fillRect(20, 20, 8, 12); // front
+  ctx.fillStyle = '#3A2418'; ctx.fillRect(20, 16, 8, 4);
+  ctx.fillStyle = '#2E4A8C'; ctx.fillRect(28, 16, 8, 4);
+  ctx.fillStyle = '#00A0FF'; ctx.fillRect(16, 20, 4, 12); ctx.fillRect(20, 20, 8, 12);
   ctx.fillStyle = '#0080CC'; ctx.fillRect(20, 27, 8, 1);
-  ctx.fillStyle = '#00A0FF'; ctx.fillRect(28, 20, 4, 12); // left
-  ctx.fillStyle = '#00A0FF'; ctx.fillRect(32, 20, 8, 12); // back
-
-  // ===== ПРАВАЯ РУКА (4x12x4) =====
-  ctx.fillStyle = '#00A0FF'; ctx.fillRect(44, 16, 4, 4); // top
-  ctx.fillStyle = '#B88A62'; ctx.fillRect(48, 16, 4, 4); // bottom
-  ctx.fillStyle = '#00A0FF'; ctx.fillRect(40, 20, 4, 6); // right
-  ctx.fillStyle = '#B88A62'; ctx.fillRect(40, 26, 4, 6);
-  ctx.fillStyle = '#00A0FF'; ctx.fillRect(44, 20, 4, 6); // front
-  ctx.fillStyle = '#B88A62'; ctx.fillRect(44, 26, 4, 6);
-  ctx.fillStyle = '#00A0FF'; ctx.fillRect(48, 20, 4, 6); // left
-  ctx.fillStyle = '#B88A62'; ctx.fillRect(48, 26, 4, 6);
-  ctx.fillStyle = '#00A0FF'; ctx.fillRect(52, 20, 4, 6); // back
-  ctx.fillStyle = '#B88A62'; ctx.fillRect(52, 26, 4, 6);
-
-  // ===== ЛЕВАЯ РУКА (4x12x4) =====
-  ctx.fillStyle = '#00A0FF'; ctx.fillRect(36, 48, 4, 4); // top
-  ctx.fillStyle = '#B88A62'; ctx.fillRect(40, 48, 4, 4); // bottom
-  ctx.fillStyle = '#00A0FF'; ctx.fillRect(32, 52, 4, 6); // right
-  ctx.fillStyle = '#B88A62'; ctx.fillRect(32, 58, 4, 6);
-  ctx.fillStyle = '#00A0FF'; ctx.fillRect(36, 52, 4, 6); // front
-  ctx.fillStyle = '#B88A62'; ctx.fillRect(36, 58, 4, 6);
-  ctx.fillStyle = '#00A0FF'; ctx.fillRect(40, 52, 4, 6); // left
-  ctx.fillStyle = '#B88A62'; ctx.fillRect(40, 58, 4, 6);
-  ctx.fillStyle = '#00A0FF'; ctx.fillRect(44, 52, 4, 6); // back
-  ctx.fillStyle = '#B88A62'; ctx.fillRect(44, 58, 4, 6);
-
-  // ===== ПРАВАЯ НОГА (4x12x4) =====
-  ctx.fillStyle = '#2E4A8C'; ctx.fillRect(4, 16, 4, 4); // top
-  ctx.fillStyle = '#1A1A1A'; ctx.fillRect(8, 16, 4, 4); // bottom
-  ctx.fillStyle = '#2E4A8C'; ctx.fillRect(0, 20, 4, 9);
-  ctx.fillStyle = '#1A1A1A'; ctx.fillRect(0, 29, 4, 3);
-  ctx.fillStyle = '#2E4A8C'; ctx.fillRect(4, 20, 4, 9);
-  ctx.fillStyle = '#1A1A1A'; ctx.fillRect(4, 29, 4, 3);
-  ctx.fillStyle = '#2E4A8C'; ctx.fillRect(8, 20, 4, 9);
-  ctx.fillStyle = '#1A1A1A'; ctx.fillRect(8, 29, 4, 3);
-  ctx.fillStyle = '#2E4A8C'; ctx.fillRect(12, 20, 4, 9);
-  ctx.fillStyle = '#1A1A1A'; ctx.fillRect(12, 29, 4, 3);
-
-  // ===== ЛЕВАЯ НОГА (4x12x4) =====
+  ctx.fillStyle = '#00A0FF'; ctx.fillRect(28, 20, 4, 12); ctx.fillRect(32, 20, 8, 12);
+  ctx.fillStyle = '#00A0FF'; ctx.fillRect(44, 16, 4, 4);
+  ctx.fillStyle = '#B88A62'; ctx.fillRect(48, 16, 4, 4);
+  ctx.fillStyle = '#00A0FF'; ctx.fillRect(40, 20, 4, 6); ctx.fillStyle = '#B88A62'; ctx.fillRect(40, 26, 4, 6);
+  ctx.fillStyle = '#00A0FF'; ctx.fillRect(44, 20, 4, 6); ctx.fillStyle = '#B88A62'; ctx.fillRect(44, 26, 4, 6);
+  ctx.fillStyle = '#00A0FF'; ctx.fillRect(48, 20, 4, 6); ctx.fillStyle = '#B88A62'; ctx.fillRect(48, 26, 4, 6);
+  ctx.fillStyle = '#00A0FF'; ctx.fillRect(52, 20, 4, 6); ctx.fillStyle = '#B88A62'; ctx.fillRect(52, 26, 4, 6);
+  ctx.fillStyle = '#00A0FF'; ctx.fillRect(36, 48, 4, 4);
+  ctx.fillStyle = '#B88A62'; ctx.fillRect(40, 48, 4, 4);
+  ctx.fillStyle = '#00A0FF'; ctx.fillRect(32, 52, 4, 6); ctx.fillStyle = '#B88A62'; ctx.fillRect(32, 58, 4, 6);
+  ctx.fillStyle = '#00A0FF'; ctx.fillRect(36, 52, 4, 6); ctx.fillStyle = '#B88A62'; ctx.fillRect(36, 58, 4, 6);
+  ctx.fillStyle = '#00A0FF'; ctx.fillRect(40, 52, 4, 6); ctx.fillStyle = '#B88A62'; ctx.fillRect(40, 58, 4, 6);
+  ctx.fillStyle = '#00A0FF'; ctx.fillRect(44, 52, 4, 6); ctx.fillStyle = '#B88A62'; ctx.fillRect(44, 58, 4, 6);
+  ctx.fillStyle = '#2E4A8C'; ctx.fillRect(4, 16, 4, 4);
+  ctx.fillStyle = '#1A1A1A'; ctx.fillRect(8, 16, 4, 4);
+  ctx.fillStyle = '#2E4A8C'; ctx.fillRect(0, 20, 4, 9); ctx.fillStyle = '#1A1A1A'; ctx.fillRect(0, 29, 4, 3);
+  ctx.fillStyle = '#2E4A8C'; ctx.fillRect(4, 20, 4, 9); ctx.fillStyle = '#1A1A1A'; ctx.fillRect(4, 29, 4, 3);
+  ctx.fillStyle = '#2E4A8C'; ctx.fillRect(8, 20, 4, 9); ctx.fillStyle = '#1A1A1A'; ctx.fillRect(8, 29, 4, 3);
+  ctx.fillStyle = '#2E4A8C'; ctx.fillRect(12, 20, 4, 9); ctx.fillStyle = '#1A1A1A'; ctx.fillRect(12, 29, 4, 3);
   ctx.fillStyle = '#2E4A8C'; ctx.fillRect(20, 48, 4, 4);
   ctx.fillStyle = '#1A1A1A'; ctx.fillRect(24, 48, 4, 4);
-  ctx.fillStyle = '#2E4A8C'; ctx.fillRect(16, 52, 4, 9);
-  ctx.fillStyle = '#1A1A1A'; ctx.fillRect(16, 61, 4, 3);
-  ctx.fillStyle = '#2E4A8C'; ctx.fillRect(20, 52, 4, 9);
-  ctx.fillStyle = '#1A1A1A'; ctx.fillRect(20, 61, 4, 3);
-  ctx.fillStyle = '#2E4A8C'; ctx.fillRect(24, 52, 4, 9);
-  ctx.fillStyle = '#1A1A1A'; ctx.fillRect(24, 61, 4, 3);
-  ctx.fillStyle = '#2E4A8C'; ctx.fillRect(28, 52, 4, 9);
-  ctx.fillStyle = '#1A1A1A'; ctx.fillRect(28, 61, 4, 3);
-
+  ctx.fillStyle = '#2E4A8C'; ctx.fillRect(16, 52, 4, 9); ctx.fillStyle = '#1A1A1A'; ctx.fillRect(16, 61, 4, 3);
+  ctx.fillStyle = '#2E4A8C'; ctx.fillRect(20, 52, 4, 9); ctx.fillStyle = '#1A1A1A'; ctx.fillRect(20, 61, 4, 3);
+  ctx.fillStyle = '#2E4A8C'; ctx.fillRect(24, 52, 4, 9); ctx.fillStyle = '#1A1A1A'; ctx.fillRect(24, 61, 4, 3);
+  ctx.fillStyle = '#2E4A8C'; ctx.fillRect(28, 52, 4, 9); ctx.fillStyle = '#1A1A1A'; ctx.fillRect(28, 61, 4, 3);
   const tex = new THREE.CanvasTexture(c);
   tex.magFilter = THREE.NearestFilter;
   tex.minFilter = THREE.NearestFilter;
@@ -495,17 +905,11 @@ function makeBodyPart(w, h, d, tex, uv) {
   const geo = new THREE.BoxGeometry(w, h, d);
   if (uv) {
     const uvs = geo.attributes.uv.array;
-    // Three.js BoxGeometry порядок граней: +X, -X, +Y, -Y, +Z, -Z
     const setFace = (i, x, y, w, h) => {
-      const u0 = x / 64;
-      const v1 = 1 - y / 64;
-      const u1 = (x + w) / 64;
-      const v0 = 1 - (y + h) / 64;
+      const u0 = x/64, v1 = 1 - y/64, u1 = (x+w)/64, v0 = 1 - (y+h)/64;
       const o = i * 8;
-      uvs[o + 0] = u0; uvs[o + 1] = v1;
-      uvs[o + 2] = u1; uvs[o + 3] = v1;
-      uvs[o + 4] = u0; uvs[o + 5] = v0;
-      uvs[o + 6] = u1; uvs[o + 7] = v0;
+      uvs[o+0]=u0; uvs[o+1]=v1; uvs[o+2]=u1; uvs[o+3]=v1;
+      uvs[o+4]=u0; uvs[o+5]=v0; uvs[o+6]=u1; uvs[o+7]=v0;
     };
     setFace(0, uv.right[0], uv.right[1], uv.right[2], uv.right[3]);
     setFace(1, uv.left[0], uv.left[1], uv.left[2], uv.left[3]);
@@ -515,374 +919,774 @@ function makeBodyPart(w, h, d, tex, uv) {
     setFace(5, uv.back[0], uv.back[1], uv.back[2], uv.back[3]);
     geo.attributes.uv.needsUpdate = true;
   }
-  const mat = new THREE.MeshLambertMaterial({
-    map: tex,
-    transparent: true,
-    alphaTest: 0.5,
-    side: THREE.FrontSide
-  });
+  const mat = new THREE.MeshLambertMaterial({ map: tex, transparent: true, alphaTest: 0.5 });
   const mesh = new THREE.Mesh(geo, mat);
-  mesh.castShadow = true;
-  mesh.receiveShadow = true;
+  mesh.castShadow = true; mesh.receiveShadow = true;
   return mesh;
 }
 
 function buildSkinModel(tex) {
   if (skinModel) {
     scene.remove(skinModel);
-    skinModel.traverse(c => {
-      if (c.isMesh) {
-        c.geometry.dispose();
-        c.material.dispose();
-      }
-    });
+    skinModel.traverse(c => { if (c.isMesh) { c.geometry.dispose(); c.material.dispose(); } });
   }
-  currentSkinTex = tex;
   const g = new THREE.Group();
-
-  // --- ГОЛОВА ---
   const head = makeBodyPart(0.5, 0.5, 0.5, tex, {
-    right:  [0, 8, 8, 8],
-    left:   [16, 8, 8, 8],
-    top:    [8, 0, 8, 8],
-    bottom: [16, 0, 8, 8],
-    front:  [8, 8, 8, 8],
-    back:   [24, 8, 8, 8]
+    right:[0,8,8,8], left:[16,8,8,8], top:[8,0,8,8],
+    bottom:[16,0,8,8], front:[8,8,8,8], back:[24,8,8,8]
   });
   const headPivot = new THREE.Group();
-  headPivot.position.set(0, 1.5, 0);
-  head.position.y = 0.25;
+  headPivot.position.set(0, 1.25, 0);
+  head.position.set(0, 0.25, 0);
   headPivot.add(head);
 
-  // --- ТЕЛО ---
   const body = makeBodyPart(0.5, 0.75, 0.25, tex, {
-    right:  [16, 20, 4, 12],
-    left:   [28, 20, 4, 12],
-    top:    [20, 16, 8, 4],
-    bottom: [28, 16, 8, 4],
-    front:  [20, 20, 8, 12],
-    back:   [32, 20, 8, 12]
+    right:[16,20,4,12], left:[28,20,4,12], top:[20,16,8,4],
+    bottom:[28,16,8,4], front:[20,20,8,12], back:[32,20,8,12]
   });
   body.position.set(0, 0.875, 0);
 
-  // --- ПРАВАЯ РУКА ---
   const rightArm = makeBodyPart(0.25, 0.75, 0.25, tex, {
-    right:  [40, 20, 4, 12],
-    left:   [48, 20, 4, 12],
-    top:    [44, 16, 4, 4],
-    bottom: [48, 16, 4, 4],
-    front:  [44, 20, 4, 12],
-    back:   [52, 20, 4, 12]
+    right:[40,20,4,12], left:[48,20,4,12], top:[44,16,4,4],
+    bottom:[48,16,4,4], front:[44,20,4,12], back:[52,20,4,12]
   });
   const rightArmPivot = new THREE.Group();
   rightArmPivot.position.set(-0.375, 1.25, 0);
-  rightArm.position.y = -0.375;
+  rightArm.position.set(0, -0.375, 0);
   rightArmPivot.add(rightArm);
 
-  // --- ЛЕВАЯ РУКА ---
   const leftArm = makeBodyPart(0.25, 0.75, 0.25, tex, {
-    right:  [32, 52, 4, 12],
-    left:   [40, 52, 4, 12],
-    top:    [36, 48, 4, 4],
-    bottom: [40, 48, 4, 4],
-    front:  [36, 52, 4, 12],
-    back:   [44, 52, 4, 12]
+    right:[32,52,4,12], left:[40,52,4,12], top:[36,48,4,4],
+    bottom:[40,48,4,4], front:[36,52,4,12], back:[44,52,4,12]
   });
   const leftArmPivot = new THREE.Group();
   leftArmPivot.position.set(0.375, 1.25, 0);
-  leftArm.position.y = -0.375;
+  leftArm.position.set(0, -0.375, 0);
   leftArmPivot.add(leftArm);
 
-  // --- ПРАВАЯ НОГА ---
   const rightLeg = makeBodyPart(0.25, 0.75, 0.25, tex, {
-    right:  [0, 20, 4, 12],
-    left:   [8, 20, 4, 12],
-    top:    [4, 16, 4, 4],
-    bottom: [8, 16, 4, 4],
-    front:  [4, 20, 4, 12],
-    back:   [12, 20, 4, 12]
+    right:[0,20,4,12], left:[8,20,4,12], top:[4,16,4,4],
+    bottom:[8,16,4,4], front:[4,20,4,12], back:[12,20,4,12]
   });
   const rightLegPivot = new THREE.Group();
-  rightLegPivot.position.set(-0.125, 0.75, 0);
-  rightLeg.position.y = -0.375;
+  rightLegPivot.position.set(-0.125, 0.5, 0);
+  rightLeg.position.set(0, -0.375, 0);
   rightLegPivot.add(rightLeg);
 
-  // --- ЛЕВАЯ НОГА ---
   const leftLeg = makeBodyPart(0.25, 0.75, 0.25, tex, {
-    right:  [16, 52, 4, 12],
-    left:   [24, 52, 4, 12],
-    top:    [20, 48, 4, 4],
-    bottom: [24, 48, 4, 4],
-    front:  [20, 52, 4, 12],
-    back:   [28, 52, 4, 12]
+    right:[16,52,4,12], left:[24,52,4,12], top:[20,48,4,4],
+    bottom:[24,48,4,4], front:[20,52,4,12], back:[28,52,4,12]
   });
   const leftLegPivot = new THREE.Group();
-  leftLegPivot.position.set(0.125, 0.75, 0);
-  leftLeg.position.y = -0.375;
+  leftLegPivot.position.set(0.125, 0.5, 0);
+  leftLeg.position.set(0, -0.375, 0);
   leftLegPivot.add(leftLeg);
 
   g.add(headPivot, body, rightArmPivot, leftArmPivot, rightLegPivot, leftLegPivot);
-  bodyParts = {
-    head: headPivot,
-    rightArm: rightArmPivot,
-    leftArm: leftArmPivot,
-    rightLeg: rightLegPivot,
-    leftLeg: leftLegPivot
-  };
+  bodyParts = { head: headPivot, rightArm: rightArmPivot, leftArm: leftArmPivot, rightLeg: rightLegPivot, leftLeg: leftLegPivot, body, root: g };
   skinModel = g;
   scene.add(g);
-
   updateHeldItem();
 }
 
-// ==================== ПРЕДМЕТЫ ====================
+// ==================== ПРЕДМЕТ В РУКЕ (2D) ====================
 let currentItem = 'none';
 let currentHand = 'right';
 
-function createItemMesh(type) {
+function createItemMesh(itemKey) {
+  const item = ITEMS[itemKey];
+  if (!item || item.type === 'none') return null;
   const group = new THREE.Group();
-  const boxMat = (color) => new THREE.MeshLambertMaterial({ color });
 
-  switch(type) {
-    case 'sword_diamond':
-    case 'sword_iron':
-    case 'sword_netherite': {
-      const colors = { sword_diamond: 0x4AEDD9, sword_iron: 0xCCCCCC, sword_netherite: 0x4A4048 };
-      const blade = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.9, 0.02), boxMat(colors[type]));
-      blade.position.y = 0.5;
-      const guard = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.06, 0.06), boxMat(0x8B5A2B));
-      guard.position.y = 0.05;
-      const handle = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.25, 0.08), boxMat(0x5A3A1A));
-      handle.position.y = -0.15;
-      const pommel = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.08, 0.1), boxMat(0xFFD700));
-      pommel.position.y = -0.3;
-      group.add(blade, guard, handle, pommel);
-      group.rotation.z = -0.3;
-      break;
+  if (item.type === 'flat') {
+    // Плоский спрайт (как в руке Minecraft)
+    const tex = item.tex();
+    const geo = new THREE.PlaneGeometry(0.5, 0.5);
+    const mat = new THREE.MeshLambertMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, alphaTest: 0.1 });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.castShadow = true;
+    group.add(mesh);
+    // Ориентируем спрайт как в руке — вертикально, лицом к камере
+    group.rotation.set(0, 0, 0);
+  } else if (item.type === 'block3d') {
+    // 3D блок с 2D текстурами
+    const tex = item.tex();
+    const color = item.color || 0xFFFFFF;
+    const mat = new THREE.MeshLambertMaterial({
+      map: tex, color: item.transparent ? 0xffffff : 0xffffff,
+      transparent: !!item.transparent, opacity: item.opacity || 1
+    });
+    const geo = new THREE.BoxGeometry(0.3, 0.3, 0.3);
+    const mesh = new THREE.Mesh(geo, mat);
+    if (item.emissive) {
+      mesh.material.emissive = new THREE.Color(color);
+      mesh.material.emissiveIntensity = 0.3;
     }
-    case 'mace': {
-      const handle = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.7, 0.08), boxMat(0x6B4423));
-      handle.position.y = 0.35;
-      const head = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, 0.35), boxMat(0x7A7A7A));
-      head.position.y = 0.9;
-      const spike1 = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.3, 4), boxMat(0xAAAAAA));
-      spike1.position.set(0, 1.25, 0);
-      const spike2 = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.3, 4), boxMat(0xAAAAAA));
-      spike2.position.set(0.25, 0.9, 0);
-      spike2.rotation.z = -Math.PI/2;
-      const spike3 = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.3, 4), boxMat(0xAAAAAA));
-      spike3.position.set(-0.25, 0.9, 0);
-      spike3.rotation.z = Math.PI/2;
-      group.add(handle, head, spike1, spike2, spike3);
-      group.rotation.z = -0.4;
-      break;
-    }
-    case 'fishing_rod': {
-      const rod = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.3, 0.05), boxMat(0x8B5A2B));
-      rod.position.y = 0.65;
-      const reel = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.08, 8), boxMat(0x5A3A1A));
-      reel.position.set(0.08, 0.3, 0);
-      reel.rotation.z = Math.PI/2;
-      const hook = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.15, 0.05), boxMat(0xCCCCCC));
-      hook.position.y = 1.35;
-      group.add(rod, reel, hook);
-      group.rotation.z = -0.5;
-      break;
-    }
-    case 'ender_pearl': {
-      const pearl = new THREE.Mesh(new THREE.SphereGeometry(0.15, 16, 12),
-        new THREE.MeshLambertMaterial({ color: 0x2E7D5B, emissive: 0x1A4A3A }));
-      pearl.position.y = 0.1;
-      const glow = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 8),
-        new THREE.MeshBasicMaterial({ color: 0x4AE9C8, transparent: true, opacity: 0.6 }));
-      glow.position.y = 0.1;
-      group.add(pearl, glow);
-      break;
-    }
-    case 'bow': {
-      const bow = new THREE.Mesh(new THREE.TorusGeometry(0.35, 0.04, 6, 12, Math.PI), boxMat(0x8B5A2B));
-      bow.rotation.z = Math.PI/2;
-      const string1 = new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.7, 0.01), boxMat(0xEEEEEE));
-      string1.position.x = -0.35;
-      group.add(bow, string1);
-      group.rotation.z = -0.6;
-      break;
-    }
-    case 'pickaxe': {
-      const handle = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.8, 0.06), boxMat(0x8B5A2B));
-      handle.position.y = 0.4;
-      const head1 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.08, 0.08), boxMat(0xCCCCCC));
-      head1.position.y = 0.75;
-      const head2 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.15, 0.08), boxMat(0xCCCCCC));
-      head2.position.set(-0.18, 0.65, 0);
-      const head3 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.15, 0.08), boxMat(0xCCCCCC));
-      head3.position.set(0.18, 0.65, 0);
-      group.add(handle, head1, head2, head3);
-      group.rotation.z = -0.4;
-      break;
-    }
-    case 'block_grass': {
-      const dirt = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), boxMat(0x8B5A2B));
-      const grass = new THREE.Mesh(new THREE.BoxGeometry(0.31, 0.08, 0.31), boxMat(0x4CAF50));
-      grass.position.y = 0.13;
-      group.add(dirt, grass);
-      break;
-    }
-    case 'block_stone': {
-      const block = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), boxMat(0x888888));
-      group.add(block);
-      break;
-    }
-    case 'torch': {
-      const stick = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.5, 0.06), boxMat(0x8B5A2B));
-      const flame = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.15, 0.12),
-        new THREE.MeshBasicMaterial({ color: 0xFFAA00 }));
-      flame.position.y = 0.32;
-      const glow = new THREE.PointLight(0xFFAA00, 1, 3);
-      glow.position.y = 0.4;
-      group.add(stick, flame, glow);
-      break;
-    }
+    mesh.castShadow = true;
+    group.add(mesh);
   }
-
-  group.traverse(c => { if (c.isMesh) c.castShadow = true; });
   return group;
 }
 
 function updateHeldItem() {
   if (heldItemMesh) {
     heldItemMesh.parent?.remove(heldItemMesh);
-    heldItemMesh.traverse(c => {
-      if (c.isMesh) { c.geometry.dispose(); c.material.dispose(); }
-    });
+    heldItemMesh.traverse(c => { if (c.isMesh) { c.geometry.dispose(); c.material.dispose(); } });
     heldItemMesh = null;
   }
-  if (currentItem === 'none' || !skinModel) return;
-
+  if (currentItem === 'none' || !skinModel || !bodyParts.rightArm) return;
   heldItemMesh = createItemMesh(currentItem);
-  heldItemMesh.position.set(0, -0.75, 0);
+  if (!heldItemMesh) return;
+
+  const item = ITEMS[currentItem];
+  if (item.type === 'flat') {
+    // Спрайт повёрнут лицом к камере, "держится" в руке
+    heldItemMesh.position.set(0, -0.55, 0.15);
+    heldItemMesh.rotation.set(0, 0, 0);
+  } else {
+    // Блок — просто в ладони
+    heldItemMesh.position.set(0, -0.75, 0.18);
+  }
+  heldItemMesh.userData.isItem = true;
+
   const arm = currentHand === 'right' ? bodyParts.rightArm : bodyParts.leftArm;
   if (arm) arm.add(heldItemMesh);
 }
 
-// ==================== ФОН ====================
-function setBackground(preset, customColor) {
-  const colors = {
-    day: 0x87CEEB, sunset: 0xFFA07A, night: 0x191970,
-    nether: 0x5C1010, end: 0x1A0033,
-    green: 0x00FF00, blue: 0x0000FF
-  };
-  if (preset === 'custom') scene.background = new THREE.Color(customColor);
-  else scene.background = new THREE.Color(colors[preset] ?? 0x87CEEB);
+// ==================== UI ПРЕДМЕТОВ ====================
+function buildItemGrid(cat) {
+  const grid = document.getElementById('itemGrid');
+  grid.innerHTML = '';
+  Object.entries(ITEMS).forEach(([key, item]) => {
+    if (item.cat !== cat) return;
+    const btn = document.createElement('div');
+    btn.className = 'item-btn';
+    btn.dataset.item = key;
+    if (key === currentItem) btn.classList.add('active');
 
-  if (preset === 'night' || preset === 'end') {
-    ambient.intensity = 0.4; sun.intensity = 0.5;
-    sun.color.setHex(0xffffff);
-  } else if (preset === 'nether') {
-    ambient.intensity = 0.5; sun.intensity = 0.9;
-    sun.color.setHex(0xFF6B3D);
-  } else {
-    ambient.intensity = 0.7; sun.intensity = 1.2;
-    sun.color.setHex(0xffffff);
-  }
-}
+    // Иконка
+    if (item.type === 'none') {
+      const span = document.createElement('span');
+      span.style.fontSize = '24px';
+      span.textContent = item.icon;
+      btn.appendChild(span);
+    } else if (item.tex) {
+      try {
+        const tex = item.tex();
+        const img = tex.image;
+        const c = document.createElement('canvas');
+        c.width = 32; c.height = 32;
+        const ctx = c.getContext('2d');
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(img, 0, 0, 32, 32);
+        btn.appendChild(c);
+      } catch(e) {}
+    }
 
-// ==================== ПОЛ ====================
-let floorMesh = null;
-let floorSize = 20;
-function setFloor(type) {
-  if (floorMesh) {
-    scene.remove(floorMesh);
-    floorMesh.geometry.dispose();
-    floorMesh.material.dispose();
-    floorMesh = null;
-  }
-  if (type === 'none') return;
-  const colors = {
-    grass: 0x4CAF50, stone: 0x888888, sand: 0xE8D28A,
-    wood: 0x8B5A2B, netherrack: 0x7A2A2A, snow: 0xF0F8FF
-  };
-  const geo = new THREE.PlaneGeometry(floorSize, floorSize);
-  const mat = new THREE.MeshLambertMaterial({ color: colors[type] || 0x4CAF50 });
-  floorMesh = new THREE.Mesh(geo, mat);
-  floorMesh.rotation.x = -Math.PI / 2;
-  floorMesh.receiveShadow = true;
-  scene.add(floorMesh);
-}
+    const name = document.createElement('div');
+    name.textContent = item.name;
+    name.style.fontSize = '8px';
+    name.style.marginTop = '2px';
+    btn.appendChild(name);
 
-// ==================== МИР ====================
-let worldObjects = [];
-function addBlock(x, y, z, color = 0x8B5A2B, size = 1) {
-  const mesh = new THREE.Mesh(
-    new THREE.BoxGeometry(size, size, size),
-    new THREE.MeshLambertMaterial({ color })
-  );
-  mesh.position.set(x, y + size/2, z);
-  mesh.castShadow = true; mesh.receiveShadow = true;
-  scene.add(mesh); worldObjects.push(mesh);
-}
-function addTree(x, z) {
-  const trunk = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.5, 0.4),
-    new THREE.MeshLambertMaterial({ color: 0x6B4423 }));
-  trunk.position.set(x, 0.75, z);
-  trunk.castShadow = true; trunk.receiveShadow = true;
-  scene.add(trunk); worldObjects.push(trunk);
-
-  const leafMat = new THREE.MeshLambertMaterial({ color: 0x2E7D32 });
-  [[0,1.8,0,1.2],[0,2.4,0,1.0],[0,3.0,0,0.7]].forEach(([lx,ly,lz,s]) => {
-    const leaf = new THREE.Mesh(new THREE.BoxGeometry(s,s,s), leafMat);
-    leaf.position.set(x+lx, ly, z+lz);
-    leaf.castShadow = true;
-    scene.add(leaf); worldObjects.push(leaf);
+    btn.onclick = () => {
+      document.querySelectorAll('.item-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentItem = key;
+      updateHeldItem();
+      setStatus(`Предмет: ${item.name}`);
+    };
+    grid.appendChild(btn);
   });
 }
-function addHouse(x, z) {
-  for (let i = -1; i <= 1; i++) {
-    if (i !== 0) { addBlock(x+i, 0, z, 0xA0522D); addBlock(x+i, 1, z, 0xA0522D); }
-    else { addBlock(x+i, 1, z, 0xA0522D); }
-    addBlock(x+i, 0, z-1, 0xA0522D);
-    addBlock(x+i, 1, z-1, 0xA0522D);
+
+// ==================== БЛОКИ НА СЦЕНЕ ====================
+let placedBlocks = [];
+let buildMode = false;
+
+const BLOCK_TYPES = {
+  grass: { color: '#4CAF50', top: '#4CAF50', side: '#8B5A2B' },
+  dirt: { color: '#8B5A2B' },
+  stone: { color: '#888888' },
+  cobblestone: { color: '#777777' },
+  wood: { color: '#6B4423' },
+  planks: { color: '#A0522D' },
+  sand: { color: '#E8D28A' },
+  sandstone: { color: '#E0B860' },
+  brick: { color: '#A0522D' },
+  glass: { color: '#AADDDD', opacity: 0.5, transparent: true },
+  glowstone: { color: '#FFD700', emissive: true },
+  netherrack: { color: '#7A2A2A' },
+  obsidian: { color: '#1A0A2A' },
+  diamond: { color: '#4AEDD9' },
+  gold: { color: '#FFD700' },
+  emerald: { color: '#17DD62' },
+  tnt: { color: '#CC2222' },
+  command_block: { color: '#9C27B0' }
+};
+
+function createBlockTexture(type) {
+  const b = BLOCK_TYPES[type];
+  if (!b) return null;
+  return createPixelTexture((ctx) => {
+    ctx.fillStyle = b.color;
+    ctx.fillRect(0, 0, 16, 16);
+    // Шум
+    for (let i = 0; i < 40; i++) {
+      ctx.fillStyle = 'rgba(0,0,0,' + (0.05 + Math.random()*0.15) + ')';
+      ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
+    }
+    for (let i = 0; i < 25; i++) {
+      ctx.fillStyle = 'rgba(255,255,255,' + (0.05 + Math.random()*0.1) + ')';
+      ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
+    }
+    // Особые
+    if (type === 'grass') {
+      ctx.fillStyle = '#4CAF50';
+      ctx.fillRect(0, 0, 16, 4);
+      for (let i = 0; i < 8; i++) {
+        ctx.fillRect(Math.floor(Math.random()*16), 4, 1, 1);
+      }
+    } else if (type === 'cobblestone') {
+      ctx.fillStyle = '#555';
+      ctx.fillRect(2, 2, 3, 3); ctx.fillRect(9, 5, 4, 4); ctx.fillRect(5, 10, 3, 3);
+    } else if (type === 'brick') {
+      ctx.fillStyle = '#FFF';
+      ctx.fillRect(0, 5, 16, 1); ctx.fillRect(8, 0, 1, 5);
+      ctx.fillRect(0, 11, 16, 1); ctx.fillRect(8, 6, 1, 5); ctx.fillRect(4, 12, 1, 4);
+    } else if (type === 'tnt') {
+      ctx.fillStyle = '#FFF';
+      ctx.fillRect(0, 5, 16, 3); ctx.fillRect(0, 10, 16, 3);
+      ctx.fillStyle = '#000';
+      ctx.fillRect(3, 5, 4, 3); ctx.fillRect(3, 10, 4, 3);
+    } else if (type === 'diamond' || type === 'gold' || type === 'emerald') {
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      ctx.fillRect(4, 4, 3, 3); ctx.fillRect(9, 9, 3, 3);
+    } else if (type === 'glass') {
+      ctx.strokeStyle = '#FFF';
+      ctx.strokeRect(0.5, 0.5, 15, 15);
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.fillRect(2, 2, 4, 4);
+    }
+  });
+}
+
+function placeBlock(x, y, z, type) {
+  const b = BLOCK_TYPES[type];
+  if (!b) return;
+  const tex = createBlockTexture(type);
+  const mats = [];
+  if (type === 'grass') {
+    const topTex = createPixelTexture((ctx) => {
+      ctx.fillStyle = '#4CAF50';
+      ctx.fillRect(0, 0, 16, 16);
+      for (let i = 0; i < 30; i++) {
+        ctx.fillStyle = 'rgba(0,0,0,' + (0.05 + Math.random()*0.15) + ')';
+        ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
+      }
+    });
+    const sideTex = createPixelTexture((ctx) => {
+      ctx.fillStyle = '#8B5A2B';
+      ctx.fillRect(0, 0, 16, 16);
+      ctx.fillStyle = '#4CAF50';
+      ctx.fillRect(0, 0, 16, 4);
+      for (let i = 0; i < 20; i++) {
+        ctx.fillStyle = 'rgba(0,0,0,' + (0.05 + Math.random()*0.15) + ')';
+        ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
+      }
+    });
+    const topMat = new THREE.MeshLambertMaterial({ map: topTex });
+    const sideMat = new THREE.MeshLambertMaterial({ map: sideTex });
+    const bottomMat = new THREE.MeshLambertMaterial({ map: createBlockTexture('dirt') });
+    // Порядок: +X, -X, +Y, -Y, +Z, -Z
+    mats.push(sideMat, sideMat, topMat, bottomMat, sideMat, sideMat);
+  } else {
+    const mat = new THREE.MeshLambertMaterial({
+      map: tex,
+      transparent: !!b.transparent,
+      opacity: b.opacity || 1
+    });
+    if (b.emissive) {
+      mat.emissive = new THREE.Color(b.color);
+      mat.emissiveIntensity = 0.4;
+    }
+    for (let i = 0; i < 6; i++) mats.push(mat);
   }
-  const roofMat = new THREE.MeshLambertMaterial({ color: 0x8B0000 });
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), mats);
+  mesh.position.set(x + 0.5, y + 0.5, z + 0.5);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  mesh.userData.blockType = type;
+  mesh.userData.gridPos = { x, y, z };
+  scene.add(mesh);
+  placedBlocks.push(mesh);
+  if (b.emissive) {
+    const light = new THREE.PointLight(0xFFD700, 0.8, 5);
+    light.position.copy(mesh.position);
+    scene.add(light);
+    mesh.userData.light = light;
+  }
+}
+
+function removeBlock(mesh) {
+  if (mesh.userData.light) scene.remove(mesh.userData.light);
+  scene.remove(mesh);
+  mesh.geometry.dispose();
+  if (Array.isArray(mesh.material)) mesh.material.forEach(m => m.dispose());
+  else mesh.material.dispose();
+  placedBlocks = placedBlocks.filter(b => b !== mesh);
+}
+
+function clearAllBlocks() {
+  placedBlocks.forEach(b => {
+    if (b.userData.light) scene.remove(b.userData.light);
+    scene.remove(b);
+    b.geometry.dispose();
+    if (Array.isArray(b.material)) b.material.forEach(m => m.dispose());
+    else b.material.dispose();
+  });
+  placedBlocks = [];
+}
+
+// ==================== ЛОКАЦИИ ====================
+let currentLocation = 'forest';
+let locationObjects = [];
+
+function clearLocation() {
+  locationObjects.forEach(o => {
+    scene.remove(o);
+    if (o.geometry) o.geometry.dispose();
+    if (o.material) {
+      if (Array.isArray(o.material)) o.material.forEach(m => m.dispose());
+      else o.material.dispose();
+    }
+  });
+  locationObjects = [];
+  if (locationFloor) {
+    scene.remove(locationFloor);
+    locationFloor.geometry.dispose();
+    locationFloor.material.dispose();
+    locationFloor = null;
+  }
+  locationWater = null;
+}
+
+let locationFloor = null;
+let locationWater = null;
+
+function createTreeMesh(x, z, type = 'oak') {
+  const group = new THREE.Group();
+  const trunkTex = createPixelTexture((ctx) => {
+    ctx.fillStyle = '#6B4423';
+    ctx.fillRect(0, 0, 16, 16);
+    for (let i = 0; i < 50; i++) {
+      ctx.fillStyle = 'rgba(0,0,0,' + Math.random() * 0.3 + ')';
+      ctx.fillRect(0, Math.floor(Math.random()*16), 16, 1);
+    }
+  });
+  const trunkMat = new THREE.MeshLambertMaterial({ map: trunkTex });
+  const trunk = new THREE.Mesh(new THREE.BoxGeometry(0.6, 3, 0.6), trunkMat);
+  trunk.position.set(0, 1.5, 0);
+  trunk.castShadow = true; trunk.receiveShadow = true;
+  group.add(trunk);
+
+  const leafTex = createPixelTexture((ctx) => {
+    ctx.fillStyle = type === 'spruce' ? '#1B4A1B' : type === 'birch' ? '#7ACA5A' : '#2E7D32';
+    ctx.fillRect(0, 0, 16, 16);
+    for (let i = 0; i < 60; i++) {
+      ctx.fillStyle = 'rgba(0,0,0,' + Math.random() * 0.4 + ')';
+      ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
+    }
+  });
+  const leafMat = new THREE.MeshLambertMaterial({ map: leafTex });
+
+  if (type === 'spruce') {
+    // Ёлка — пирамидка
+    for (let i = 0; i < 4; i++) {
+      const size = 2.5 - i * 0.5;
+      const leaves = new THREE.Mesh(new THREE.BoxGeometry(size, size, size), leafMat);
+      leaves.position.set(0, 3 + i * 0.6, 0);
+      leaves.castShadow = true;
+      group.add(leaves);
+    }
+  } else {
+    // Дуб/берёза — куб
+    const leaves1 = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.8, 2.2), leafMat);
+    leaves1.position.set(0, 3.2, 0);
+    leaves1.castShadow = true;
+    const leaves2 = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1, 1.6), leafMat);
+    leaves2.position.set(0, 4.3, 0);
+    leaves2.castShadow = true;
+    group.add(leaves1, leaves2);
+  }
+
+  group.position.set(x, 0, z);
+  return group;
+}
+
+function createBush(x, z) {
+  const leafTex = createPixelTexture((ctx) => {
+    ctx.fillStyle = '#2E7D32';
+    ctx.fillRect(0, 0, 16, 16);
+    for (let i = 0; i < 60; i++) {
+      ctx.fillStyle = 'rgba(0,0,0,' + Math.random() * 0.4 + ')';
+      ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
+    }
+  });
+  const mat = new THREE.MeshLambertMaterial({ map: leafTex });
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.7, 0.8), mat);
+  mesh.position.set(x, 0.35, z);
+  mesh.castShadow = true;
+  return mesh;
+}
+
+function createRock(x, z, size = 1) {
+  const tex = createPixelTexture((ctx) => {
+    ctx.fillStyle = '#888';
+    ctx.fillRect(0, 0, 16, 16);
+    for (let i = 0; i < 40; i++) {
+      ctx.fillStyle = 'rgba(0,0,0,' + Math.random() * 0.3 + ')';
+      ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
+    }
+  });
+  const mat = new THREE.MeshLambertMaterial({ map: tex });
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(size, size*0.7, size), mat);
+  mesh.position.set(x, size*0.35, z);
+  mesh.rotation.y = Math.random() * Math.PI;
+  mesh.castShadow = true;
+  return mesh;
+}
+
+function createFlower(x, z, color = 0xFF0000) {
+  const group = new THREE.Group();
+  const stem = new THREE.Mesh(
+    new THREE.BoxGeometry(0.05, 0.4, 0.05),
+    new THREE.MeshLambertMaterial({ color: 0x4CAF50 })
+  );
+  stem.position.set(0, 0.2, 0);
+  group.add(stem);
+  const petalMat = new THREE.MeshLambertMaterial({ color });
+  for (let i = 0; i < 4; i++) {
+    const petal = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.05, 0.15), petalMat);
+    petal.position.set(
+      (i % 2 === 0 ? 0.08 : -0.08) * (i < 2 ? 1 : -1),
+      0.42,
+      (i < 2 ? 0.08 : -0.08)
+    );
+    group.add(petal);
+  }
+  const center = new THREE.Mesh(
+    new THREE.BoxGeometry(0.1, 0.05, 0.1),
+    new THREE.MeshLambertMaterial({ color: 0xFFFF00 })
+  );
+  center.position.y = 0.45;
+  group.add(center);
+  group.position.set(x, 0, z);
+  return group;
+}
+
+function createCactus(x, z) {
+  const tex = createPixelTexture((ctx) => {
+    ctx.fillStyle = '#2E7D32';
+    ctx.fillRect(0, 0, 16, 16);
+    for (let i = 0; i < 30; i++) {
+      ctx.fillStyle = 'rgba(0,0,0,' + Math.random() * 0.3 + ')';
+      ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
+    }
+  });
+  const mat = new THREE.MeshLambertMaterial({ map: tex });
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.8, 0.6), mat);
+  mesh.position.set(x, 0.9, z);
+  mesh.castShadow = true;
+  return mesh;
+}
+
+function createWater(x, z, w, h, y = 0.05) {
+  const tex = createPixelTexture((ctx) => {
+    ctx.fillStyle = '#3B7BD8';
+    ctx.fillRect(0, 0, 16, 16);
+    for (let i = 0; i < 30; i++) {
+      ctx.fillStyle = 'rgba(255,255,255,' + Math.random() * 0.2 + ')';
+      ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
+    }
+  });
+  const mat = new THREE.MeshLambertMaterial({ map: tex, transparent: true, opacity: 0.8 });
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat);
+  mesh.rotation.x = -Math.PI / 2;
+  mesh.position.set(x, y, z);
+  mesh.receiveShadow = true;
+  return mesh;
+}
+
+function generateLocation(loc) {
+  clearLocation();
+  currentLocation = loc;
+
+  const density = parseInt(document.getElementById('locDensity').value) || 10;
+  const range = 20;
+
+  // === ЦВЕТА ПОЛА, НЕБА, ТУМАНА ===
+  const configs = {
+    plains: { floor: 0x7CBF4F, sky: 0x87CEEB, fog: 0x87CEEB, trees: 0.2, bushes: 0.3, flowers: 0.8, rocks: 0.3 },
+    forest: { floor: 0x4CAF50, sky: 0x7CBAE8, fog: 0x9CCFE8, trees: 1, bushes: 0.5, flowers: 0.4, rocks: 0.2 },
+    desert: { floor: 0xE8D28A, sky: 0xFFCC88, fog: 0xFFCC88, trees: 0.05, bushes: 0.05, flowers: 0, rocks: 0.5, cacti: 0.5 },
+    snow: { floor: 0xEEEEEE, sky: 0xBBD5EE, fog: 0xD5E5F0, trees: 0.7, bushes: 0.2, flowers: 0, rocks: 0.3, snowTrees: true },
+    river: { floor: 0x7CBF4F, sky: 0x87CEEB, fog: 0x87CEEB, trees: 0.4, bushes: 0.4, flowers: 0.6, rocks: 0.4, water: true },
+    nether: { floor: 0x7A2A2A, sky: 0x5C1010, fog: 0x5C1010, trees: 0, bushes: 0, flowers: 0, rocks: 0.6, nether: true },
+    end: { floor: 0xE8E0B0, sky: 0x1A0033, fog: 0x1A0033, trees: 0, bushes: 0, flowers: 0, rocks: 0.4, end: true },
+    village: { floor: 0x8BC34A, sky: 0x87CEEB, fog: 0x87CEEB, trees: 0.3, bushes: 0.3, flowers: 0.5, rocks: 0.2, houses: true },
+    ocean: { floor: 0xC2B280, sky: 0x87CEEB, fog: 0x87CEEB, trees: 0, bushes: 0, flowers: 0, rocks: 0.2, water: 'big' },
+    cave: { floor: 0x555555, sky: 0x1A1A1A, fog: 0x1A1A1A, trees: 0, bushes: 0, flowers: 0, rocks: 0.8, cave: true }
+  };
+
+  const cfg = configs[loc] || configs.forest;
+
+  // Сцена
+  scene.background = new THREE.Color(cfg.sky);
+  scene.fog = new THREE.Fog(cfg.fog, 25, 80);
+
+  // Пол
+  const floorGeo = new THREE.PlaneGeometry(80, 80);
+  const floorMat = new THREE.MeshLambertMaterial({ color: cfg.floor });
+  locationFloor = new THREE.Mesh(floorGeo, floorMat);
+  locationFloor.rotation.x = -Math.PI / 2;
+  locationFloor.receiveShadow = true;
+  scene.add(locationFloor);
+
+  // Деревья
+  const treeCount = Math.floor(density * (cfg.trees || 0));
+  for (let i = 0; i < treeCount; i++) {
+    const x = (Math.random() - 0.5) * range * 2;
+    const z = (Math.random() - 0.5) * range * 2;
+    if (Math.abs(x) < 3 && Math.abs(z) < 3) continue; // не спавним на игроке
+    let type = 'oak';
+    if (loc === 'forest') type = Math.random() < 0.3 ? 'birch' : Math.random() < 0.5 ? 'spruce' : 'oak';
+    if (loc === 'snow') type = 'spruce';
+    const tree = createTreeMesh(x, z, type);
+    scene.add(tree);
+    locationObjects.push(tree);
+  }
+
+  // Кусты
+  const bushCount = Math.floor(density * (cfg.bushes || 0));
+  for (let i = 0; i < bushCount; i++) {
+    const x = (Math.random() - 0.5) * range * 2;
+    const z = (Math.random() - 0.5) * range * 2;
+    if (Math.abs(x) < 2 && Math.abs(z) < 2) continue;
+    const bush = createBush(x, z);
+    scene.add(bush);
+    locationObjects.push(bush);
+  }
+
+  // Цветы
+  const flowerCount = Math.floor(density * (cfg.flowers || 0));
+  for (let i = 0; i < flowerCount; i++) {
+    const x = (Math.random() - 0.5) * range * 2;
+    const z = (Math.random() - 0.5) * range * 2;
+    if (Math.abs(x) < 2 && Math.abs(z) < 2) continue;
+    const colors = [0xFF0000, 0xFFAA00, 0xFFFFFF, 0xFF00FF, 0x00AAFF];
+    const flower = createFlower(x, z, colors[Math.floor(Math.random() * colors.length)]);
+    scene.add(flower);
+    locationObjects.push(flower);
+  }
+
+  // Камни
+  const rockCount = Math.floor(density * (cfg.rocks || 0));
+  for (let i = 0; i < rockCount; i++) {
+    const x = (Math.random() - 0.5) * range * 2;
+    const z = (Math.random() - 0.5) * range * 2;
+    if (Math.abs(x) < 2 && Math.abs(z) < 2) continue;
+    const rock = createRock(x, z, 0.5 + Math.random() * 1);
+    scene.add(rock);
+    locationObjects.push(rock);
+  }
+
+  // Кактусы
+  if (cfg.cacti) {
+    const count = Math.floor(density * cfg.cacti);
+    for (let i = 0; i < count; i++) {
+      const x = (Math.random() - 0.5) * range * 2;
+      const z = (Math.random() - 0.5) * range * 2;
+      if (Math.abs(x) < 2 && Math.abs(z) < 2) continue;
+      const cactus = createCactus(x, z);
+      scene.add(cactus);
+      locationObjects.push(cactus);
+    }
+  }
+
+  // Вода
+  if (cfg.water === 'big') {
+    locationWater = createWater(0, 0, 80, 80, 0.05);
+    scene.add(locationWater);
+    locationObjects.push(locationWater);
+  } else if (cfg.water) {
+    const w = createWater((Math.random()-0.5)*6, (Math.random()-0.5)*6, 8, 2.5, 0.05);
+    scene.add(w);
+    locationObjects.push(w);
+  }
+
+  // Дома (деревня)
+  if (cfg.houses) {
+    for (let i = 0; i < 3; i++) {
+      const x = -6 + i * 6;
+      const z = -5;
+      addSimpleHouse(x, z);
+    }
+    for (let i = 0; i < 3; i++) {
+      const x = -6 + i * 6;
+      const z = 6;
+      addSimpleHouse(x, z);
+    }
+  }
+
+  // Незер-специфика
+  if (cfg.nether) {
+    for (let i = 0; i < 8; i++) {
+      const x = (Math.random() - 0.5) * range * 2;
+      const z = (Math.random() - 0.5) * range * 2;
+      const lava = new THREE.Mesh(
+        new THREE.PlaneGeometry(2 + Math.random() * 2, 2 + Math.random() * 2),
+        new THREE.MeshBasicMaterial({ color: 0xFF4400 })
+      );
+      lava.rotation.x = -Math.PI / 2;
+      lava.position.set(x, 0.02, z);
+      scene.add(lava);
+      locationObjects.push(lava);
+      const light = new THREE.PointLight(0xFF6600, 1, 5);
+      light.position.set(x, 0.5, z);
+      scene.add(light);
+      locationObjects.push(light);
+    }
+  }
+
+  // Энд-специфика
+  if (cfg.end) {
+    for (let i = 0; i < 12; i++) {
+      const x = (Math.random() - 0.5) * range * 2;
+      const z = (Math.random() - 0.5) * range * 2;
+      const pillar = new THREE.Mesh(
+        new THREE.BoxGeometry(0.5, 3 + Math.random() * 3, 0.5),
+        new THREE.MeshLambertMaterial({ color: 0x2A1A4A })
+      );
+      pillar.position.set(x, 1.5, z);
+      pillar.castShadow = true;
+      scene.add(pillar);
+      locationObjects.push(pillar);
+    }
+  }
+
+  // Пещера
+  if (cfg.cave) {
+    scene.background = new THREE.Color(0x1A1A1A);
+    for (let i = 0; i < 20; i++) {
+      const x = (Math.random() - 0.5) * range * 2;
+      const y = Math.random() * 5 + 3;
+      const z = (Math.random() - 0.5) * range * 2;
+      const stalactite = new THREE.Mesh(
+        new THREE.ConeGeometry(0.3, 1 + Math.random(), 4),
+        new THREE.MeshLambertMaterial({ color: 0x444444 })
+      );
+      stalactite.position.set(x, y, z);
+      scene.add(stalactite);
+      locationObjects.push(stalactite);
+    }
+  }
+
+  setStatus(`🌍 Локация: ${document.querySelector(`.loc-btn[data-loc="${loc}"]`)?.textContent || loc}`);
+}
+
+function addSimpleHouse(x, z) {
+  // Стены
+  for (let i = -1; i <= 1; i++) {
+    for (let j = 0; j < 3; j++) {
+      if (j < 2 && i === 0) continue; // дверь
+      addBlockToLocation(x + i, j, z, 0xA0522D);
+    }
+    for (let j = 0; j < 3; j++) addBlockToLocation(x + i, j, z - 1, 0xA0522D);
+    for (let j = 0; j < 3; j++) { addBlockToLocation(x - 1, j, z - 1, 0xA0522D); addBlockToLocation(x + 1, j, z - 1, 0xA0522D); }
+  }
+  // Крыша
   for (let i = -1; i <= 1; i++) {
     for (let k = -1; k <= 0; k++) {
-      const roof = new THREE.Mesh(new THREE.BoxGeometry(1, 0.3, 1), roofMat);
-      roof.position.set(x+i, 2.15, z+k);
+      const roof = new THREE.Mesh(
+        new THREE.BoxGeometry(1, 0.3, 1),
+        new THREE.MeshLambertMaterial({ color: 0x8B0000 })
+      );
+      roof.position.set(x + i, 3.15, z + k);
       roof.castShadow = true;
-      scene.add(roof); worldObjects.push(roof);
+      scene.add(roof);
+      locationObjects.push(roof);
     }
   }
 }
-function addStructure(x, z) {
-  const colors = [0xFFD700, 0xFFA500, 0xFF8C00];
-  for (let layer = 0; layer < 3; layer++) {
-    const size = 3 - layer;
-    for (let i = 0; i < size; i++)
-      for (let j = 0; j < size; j++)
-        addBlock(x + i - size/2 + 0.5, layer, z + j - size/2 + 0.5, colors[layer]);
-  }
-}
-function clearScene() {
-  worldObjects.forEach(o => { scene.remove(o); o.geometry?.dispose(); o.material?.dispose(); });
-  worldObjects = [];
+
+function addBlockToLocation(x, y, z, color) {
+  const tex = createPixelTexture((ctx) => {
+    ctx.fillStyle = '#' + color.toString(16).padStart(6, '0');
+    ctx.fillRect(0, 0, 16, 16);
+    for (let i = 0; i < 40; i++) {
+      ctx.fillStyle = 'rgba(0,0,0,' + Math.random() * 0.2 + ')';
+      ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
+    }
+  });
+  const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(1, 1, 1),
+    new THREE.MeshLambertMaterial({ map: tex })
+  );
+  mesh.position.set(x + 0.5, y + 0.5, z + 0.5);
+  mesh.castShadow = true; mesh.receiveShadow = true;
+  scene.add(mesh);
+  locationObjects.push(mesh);
 }
 
-// ==================== КОНСТРУКТОР ====================
+// ==================== КОНСТРУКТОР АНИМАЦИЙ ====================
 let timelineFrames = 20;
 let currentFrame = 0;
 let keyframes = [];
-let isPlayingCustom = false;
 let customPlayTime = 0;
 const CUSTOM_FPS = 20;
 
-const animatableParts = ['head', 'rightArm', 'leftArm', 'rightLeg', 'leftLeg', 'root'];
-const partNames = {
-  head: 'Голова', rightArm: 'Пр. рука', leftArm: 'Лев. рука',
-  rightLeg: 'Пр. нога', leftLeg: 'Лев. нога', root: 'Корень (Y)'
-};
+const animatableParts = ['head', 'body', 'rightArm', 'leftArm', 'rightLeg', 'leftLeg', 'root'];
+const partNames = { head: 'Голова', body: 'Тело', rightArm: 'Пр.рука', leftArm: 'Лев.рука', rightLeg: 'Пр.нога', leftLeg: 'Лев.нога', root: 'Корень' };
+
+let selectedPart = 'head';
+
+function getPartObject(part) {
+  if (part === 'root') return skinModel;
+  return bodyParts[part] || null;
+}
+
+function updateSlidersFromPart() {
+  const obj = getPartObject(selectedPart);
+  if (!obj) return;
+  const rx = Math.round(THREE.MathUtils.radToDeg(obj.rotation.x));
+  const ry = Math.round(THREE.MathUtils.radToDeg(obj.rotation.y));
+  const rz = Math.round(THREE.MathUtils.radToDeg(obj.rotation.z));
+  document.getElementById('rotX').value = Math.max(-180, Math.min(180, rx));
+  document.getElementById('rotY').value = Math.max(-180, Math.min(180, ry));
+  document.getElementById('rotZ').value = Math.max(-180, Math.min(180, rz));
+  document.getElementById('rotXVal').textContent = rx + '°';
+  document.getElementById('rotYVal').textContent = ry + '°';
+  document.getElementById('rotZVal').textContent = rz + '°';
+}
+
+function applySlidersToPart() {
+  const obj = getPartObject(selectedPart);
+  if (!obj) return;
+  const rx = parseFloat(document.getElementById('rotX').value);
+  const ry = parseFloat(document.getElementById('rotY').value);
+  const rz = parseFloat(document.getElementById('rotZ').value);
+  obj.rotation.x = THREE.MathUtils.degToRad(rx);
+  obj.rotation.y = THREE.MathUtils.degToRad(ry);
+  obj.rotation.z = THREE.MathUtils.degToRad(rz);
+  document.getElementById('rotXVal').textContent = rx + '°';
+  document.getElementById('rotYVal').textContent = ry + '°';
+  document.getElementById('rotZVal').textContent = rz + '°';
+}
 
 function buildTimelineUI() {
   const body = document.getElementById('timeline-body');
+  if (!body) return;
   body.innerHTML = '';
   animatableParts.forEach(part => {
     const track = document.createElement('div');
@@ -903,10 +1707,9 @@ function buildTimelineUI() {
       slot.onclick = () => {
         if (i === currentFrame) {
           const idx = keyframes.findIndex(k => k.frame === i && k.part === part);
-          if (idx >= 0) {
-            keyframes.splice(idx, 1);
-          } else {
-            const obj = part === 'root' ? skinModel : bodyParts[part];
+          if (idx >= 0) keyframes.splice(idx, 1);
+          else {
+            const obj = getPartObject(part);
             if (obj) keyframes.push({
               frame: i, part,
               rot: { x: obj.rotation.x, y: obj.rotation.y, z: obj.rotation.z },
@@ -924,7 +1727,6 @@ function buildTimelineUI() {
     track.appendChild(slots);
     body.appendChild(track);
   });
-  document.getElementById('frameCount').textContent = timelineFrames;
   document.getElementById('tlSlider').max = timelineFrames - 1;
   document.getElementById('tlFrameLabel').textContent = `${currentFrame}/${timelineFrames-1}`;
   document.getElementById('tlSlider').value = currentFrame;
@@ -932,27 +1734,25 @@ function buildTimelineUI() {
 
 function setCurrentFrame(f) {
   currentFrame = Math.max(0, Math.min(f, timelineFrames - 1));
-  buildTimelineUI();
   applyCustomFrame(currentFrame);
+  buildTimelineUI();
+  updateSlidersFromPart();
 }
 
 function applyCustomFrame(frame) {
   if (!skinModel) return;
   animatableParts.forEach(part => {
-    const obj = part === 'root' ? skinModel : bodyParts[part];
+    const obj = getPartObject(part);
     if (!obj) return;
     const keys = keyframes.filter(k => k.part === part).sort((a,b) => a.frame - b.frame);
     if (keys.length === 0) return;
-
     let before = keys[0], after = keys[keys.length-1];
     for (let i = 0; i < keys.length; i++) {
       if (keys[i].frame <= frame) before = keys[i];
       if (keys[i].frame >= frame) { after = keys[i]; break; }
     }
     let t = 0;
-    if (after.frame !== before.frame) {
-      t = (frame - before.frame) / (after.frame - before.frame);
-    }
+    if (after.frame !== before.frame) t = (frame - before.frame) / (after.frame - before.frame);
     const lerp = (a, b, t) => a + (b - a) * t;
     obj.rotation.x = lerp(before.rot.x, after.rot.x, t);
     obj.rotation.y = lerp(before.rot.y, after.rot.y, t);
@@ -965,22 +1765,6 @@ function applyCustomFrame(frame) {
   });
 }
 
-function saveCurrentPoseAsKeyframe() {
-  animatableParts.forEach(part => {
-    const idx = keyframes.findIndex(k => k.frame === currentFrame && k.part === part);
-    const obj = part === 'root' ? skinModel : bodyParts[part];
-    if (!obj) return;
-    const kf = {
-      frame: currentFrame, part,
-      rot: { x: obj.rotation.x, y: obj.rotation.y, z: obj.rotation.z },
-      pos: { x: obj.position.x, y: obj.position.y, z: obj.position.z }
-    };
-    if (idx >= 0) keyframes[idx] = kf;
-    else keyframes.push(kf);
-  });
-  buildTimelineUI();
-}
-
 // ==================== АНИМАЦИИ ====================
 let animationState = 'idle';
 let animTime = 0;
@@ -990,7 +1774,6 @@ let controlMode = 'orbit';
 
 function updateAnimation(dt) {
   if (!skinModel) return;
-
   if (animationState === 'custom') {
     if (isPlaying) {
       customPlayTime += dt * animSpeed;
@@ -1003,170 +1786,251 @@ function updateAnimation(dt) {
     applyCustomFrame(currentFrame);
     return;
   }
-
   if (!isPlaying) return;
   animTime += dt * animSpeed;
   const t = animTime;
-
-  bodyParts.rightArm?.rotation.set(0,0,0);
-  bodyParts.leftArm?.rotation.set(0,0,0);
-  bodyParts.rightLeg?.rotation.set(0,0,0);
-  bodyParts.leftLeg?.rotation.set(0,0,0);
-  bodyParts.head?.rotation.set(0,0,0);
-  skinModel.position.set(0,0,0);
-  skinModel.rotation.set(0,0,0);
-
-  if (!bodyParts.rightArm) return;
+  Object.values(bodyParts).forEach(p => p.rotation && p.rotation.set(0,0,0));
+  if (skinModel) { skinModel.position.set(0,0,0); skinModel.rotation.set(0,0,0); }
+  const { rightArm, leftArm, rightLeg, leftLeg, head } = bodyParts;
+  if (!rightArm) return;
 
   switch(animationState) {
     case 'idle':
-      bodyParts.rightArm.rotation.x = Math.sin(t*2)*0.05;
-      bodyParts.leftArm.rotation.x = -Math.sin(t*2)*0.05;
-      bodyParts.head.rotation.y = Math.sin(t*0.7)*0.2;
+      rightArm.rotation.x = Math.sin(t*2)*0.05;
+      leftArm.rotation.x = -Math.sin(t*2)*0.05;
+      head.rotation.y = Math.sin(t*0.7)*0.2;
       skinModel.position.y = Math.sin(t*2)*0.02;
       break;
     case 'walk':
-      bodyParts.rightArm.rotation.x = Math.sin(t*4)*0.7;
-      bodyParts.leftArm.rotation.x = -Math.sin(t*4)*0.7;
-      bodyParts.rightLeg.rotation.x = -Math.sin(t*4)*0.7;
-      bodyParts.leftLeg.rotation.x = Math.sin(t*4)*0.7;
+      rightArm.rotation.x = Math.sin(t*4)*0.7;
+      leftArm.rotation.x = -Math.sin(t*4)*0.7;
+      rightLeg.rotation.x = -Math.sin(t*4)*0.7;
+      leftLeg.rotation.x = Math.sin(t*4)*0.7;
       skinModel.position.y = Math.abs(Math.sin(t*4))*0.05;
       break;
     case 'run':
-      bodyParts.rightArm.rotation.x = Math.sin(t*8)*1.2;
-      bodyParts.leftArm.rotation.x = -Math.sin(t*8)*1.2;
-      bodyParts.rightLeg.rotation.x = -Math.sin(t*8)*1.2;
-      bodyParts.leftLeg.rotation.x = Math.sin(t*8)*1.2;
-      bodyParts.head.rotation.x = 0.3;
+      rightArm.rotation.x = Math.sin(t*8)*1.2;
+      leftArm.rotation.x = -Math.sin(t*8)*1.2;
+      rightLeg.rotation.x = -Math.sin(t*8)*1.2;
+      leftLeg.rotation.x = Math.sin(t*8)*1.2;
+      head.rotation.x = 0.3;
       skinModel.position.y = Math.abs(Math.sin(t*8))*0.08;
       break;
     case 'wave':
-      bodyParts.rightArm.rotation.z = Math.PI + Math.sin(t*6)*0.3;
-      bodyParts.rightArm.rotation.x = -0.3;
-      bodyParts.head.rotation.y = Math.sin(t*2)*0.3;
+      rightArm.rotation.z = Math.PI + Math.sin(t*6)*0.3;
+      rightArm.rotation.x = -0.3;
+      head.rotation.y = Math.sin(t*2)*0.3;
       break;
     case 'jump': {
       const j = Math.abs(Math.sin(t*3));
       skinModel.position.y = j * 0.8;
-      bodyParts.rightArm.rotation.x = -j * 1.5;
-      bodyParts.leftArm.rotation.x = -j * 1.5;
-      bodyParts.rightLeg.rotation.x = j * 0.5;
-      bodyParts.leftLeg.rotation.x = j * 0.5;
+      rightArm.rotation.x = -j * 1.5;
+      leftArm.rotation.x = -j * 1.5;
+      rightLeg.rotation.x = j * 0.5;
+      leftLeg.rotation.x = j * 0.5;
       break;
     }
     case 'dance':
       skinModel.rotation.y = Math.sin(t*3)*0.5;
-      bodyParts.rightArm.rotation.z = Math.sin(t*4)*1.5 - 0.5;
-      bodyParts.leftArm.rotation.z = -Math.sin(t*4)*1.5 + 0.5;
-      bodyParts.rightLeg.rotation.x = Math.sin(t*6)*0.5;
-      bodyParts.leftLeg.rotation.x = -Math.sin(t*6)*0.5;
+      rightArm.rotation.z = Math.sin(t*4)*1.5 - 0.5;
+      leftArm.rotation.z = -Math.sin(t*4)*1.5 + 0.5;
+      rightLeg.rotation.x = Math.sin(t*6)*0.5;
+      leftLeg.rotation.x = -Math.sin(t*6)*0.5;
       skinModel.position.y = Math.abs(Math.sin(t*6))*0.1;
       break;
     case 'spin':
       skinModel.rotation.y = t * 2;
-      bodyParts.head.rotation.x = Math.sin(t*2)*0.1;
+      head.rotation.x = Math.sin(t*2)*0.1;
       break;
     case 'sword_swing': {
       const swing = (Math.sin(t*4) + 1) / 2;
-      bodyParts.rightArm.rotation.x = -swing * 2.2;
-      bodyParts.rightArm.rotation.z = -0.3 - swing * 0.5;
-      bodyParts.head.rotation.y = Math.sin(t*4)*0.2;
+      rightArm.rotation.x = -swing * 2.2;
+      rightArm.rotation.z = -0.3 - swing * 0.5;
+      head.rotation.y = Math.sin(t*4)*0.2;
       break;
     }
     case 'mace_smash': {
       const phase = (t * 2) % (Math.PI * 2);
       if (phase < Math.PI) {
-        bodyParts.rightArm.rotation.x = -phase * 0.9;
-        bodyParts.rightArm.rotation.z = -0.5;
+        rightArm.rotation.x = -phase * 0.9;
+        rightArm.rotation.z = -0.5;
       } else {
         const down = (phase - Math.PI) / Math.PI;
-        bodyParts.rightArm.rotation.x = -Math.PI * 0.9 + down * 3;
-        bodyParts.rightArm.rotation.z = -0.5 + down * 0.3;
+        rightArm.rotation.x = -Math.PI * 0.9 + down * 3;
+        rightArm.rotation.z = -0.5 + down * 0.3;
       }
-      bodyParts.head.rotation.x = 0.1;
+      head.rotation.x = 0.1;
       break;
     }
     case 'fishing': {
       const reel = Math.sin(t*1.5);
-      bodyParts.rightArm.rotation.x = -1.0 + reel * 0.3;
-      bodyParts.rightArm.rotation.z = -0.4;
-      bodyParts.head.rotation.x = 0.15;
+      rightArm.rotation.x = -1.0 + reel * 0.3;
+      rightArm.rotation.z = -0.4;
+      head.rotation.x = 0.15;
       break;
     }
     case 'throw_pearl': {
       const tp = (t * 1.5) % 2;
-      if (tp < 1) bodyParts.rightArm.rotation.x = -tp * 2.5;
-      else bodyParts.rightArm.rotation.x = -2.5 + (tp - 1) * 2.5;
-      bodyParts.rightArm.rotation.z = -0.3;
+      if (tp < 1) rightArm.rotation.x = -tp * 2.5;
+      else rightArm.rotation.x = -2.5 + (tp - 1) * 2.5;
+      rightArm.rotation.z = -0.3;
+      break;
+    }
+    case 'bow_shoot': {
+      rightArm.rotation.x = -1.5;
+      rightArm.rotation.z = -0.2;
+      leftArm.rotation.x = -1.3;
+      leftArm.rotation.z = 0.4;
+      const pull = Math.sin(t*2) * 0.5 + 0.5;
+      rightArm.rotation.x = -1.3 - pull * 0.3;
+      break;
+    }
+    case 'eat': {
+      rightArm.rotation.x = -1.5 + Math.sin(t*6) * 0.15;
+      rightArm.rotation.z = -0.3;
+      head.rotation.x = 0.2 + Math.sin(t*6) * 0.1;
+      break;
+    }
+    case 'mining': {
+      const swing = (Math.sin(t*5) + 1) / 2;
+      rightArm.rotation.x = -swing * 1.5;
+      rightArm.rotation.z = 0.2;
+      head.rotation.x = 0.4;
       break;
     }
   }
 }
 
-// ==================== ТЕЛЕПОРТ ====================
-let teleportActive = false;
+// ==================== СТРОИТЕЛЬСТВО ====================
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 const teleportIndicator = document.getElementById('teleport-indicator');
 let teleportTarget = new THREE.Vector3();
 
-function updateTeleportIndicator(x, y) {
+function getPointerNDC(clientX, clientY) {
   const rect = renderer.domElement.getBoundingClientRect();
-  const nx = ((x - rect.left) / rect.width) * 2 - 1;
-  const ny = -((y - rect.top) / rect.height) * 2 + 1;
-  mouse.set(nx, ny);
-  raycaster.setFromCamera(mouse, camera);
-  const groundY = floorMesh ? 0 : 1.5;
-  const plane = new THREE.Plane(new THREE.Vector3(0,1,0), -groundY);
+  return {
+    x: ((clientX - rect.left) / rect.width) * 2 - 1,
+    y: -((clientY - rect.top) / rect.height) * 2 + 1
+  };
+}
+
+function getGroundIntersect(clientX, clientY) {
+  const ndc = getPointerNDC(clientX, clientY);
+  raycaster.setFromCamera(new THREE.Vector2(ndc.x, ndc.y), camera);
+  // Сначала ищем пересечение с блоками
+  const blockHits = raycaster.intersectObjects(placedBlocks, false);
+  if (blockHits.length > 0) {
+    const hit = blockHits[0];
+    const normal = hit.face.normal.clone();
+    const pos = hit.object.userData.gridPos;
+    return {
+      type: 'block',
+      block: hit.object,
+      gridPos: { x: pos.x + normal.x, y: pos.y + normal.y, z: pos.z + normal.z }
+    };
+  }
+  // Иначе с полом (y=0)
+  const plane = new THREE.Plane(new THREE.Vector3(0,1,0), 0);
   const intersect = new THREE.Vector3();
   if (raycaster.ray.intersectPlane(plane, intersect)) {
-    teleportTarget.copy(intersect);
-    const screenPos = intersect.clone().project(camera);
-    const px = (screenPos.x * 0.5 + 0.5) * rect.width;
-    const py = (-screenPos.y * 0.5 + 0.5) * rect.height;
-    teleportIndicator.style.left = px + 'px';
-    teleportIndicator.style.top = py + 'px';
-    teleportIndicator.classList.add('active');
+    return {
+      type: 'ground',
+      gridPos: { x: Math.round(intersect.x - 0.5), y: 0, z: Math.round(intersect.z - 0.5) }
+    };
   }
+  return null;
 }
 
-function doTeleport(x, y) {
-  updateTeleportIndicator(x, y);
-  if (teleportTarget.length() > 0) {
-    const start = controls.target.clone();
-    const end = teleportTarget.clone();
-    end.y = 1.5;
-    const startTime = performance.now();
-    const duration = 400;
-    const animateTp = () => {
-      const e = Math.min((performance.now() - startTime) / duration, 1);
-      const k = 1 - Math.pow(1 - e, 3);
-      controls.target.lerpVectors(start, end, k);
-      const camOffset = camera.position.clone().sub(start);
-      camera.position.copy(end.clone().add(camOffset));
-      if (e < 1) requestAnimationFrame(animateTp);
-    };
-    animateTp();
-    setStatus(`🎯 Телепорт (${end.x.toFixed(1)}, ${end.z.toFixed(1)})`);
-  }
-  teleportIndicator.classList.remove('active');
-}
+// Состояние для определения долгого нажатия
+let pointerDownTime = 0;
+let pointerDownPos = { x: 0, y: 0 };
+let longPressTimer = null;
+let currentPointerType = '';
 
 renderer.domElement.addEventListener('pointerdown', (e) => {
-  if (controlMode === 'teleport') {
-    teleportActive = true;
-    updateTeleportIndicator(e.clientX, e.clientY);
+  currentPointerType = e.pointerType;
+  pointerDownTime = Date.now();
+  pointerDownPos = { x: e.clientX, y: e.clientY };
+
+  if (buildMode) {
+    // Долгое нажатие = удаление блока
+    longPressTimer = setTimeout(() => {
+      const hit = getGroundIntersect(e.clientX, e.clientY);
+      if (hit && hit.type === 'block') {
+        removeBlock(hit.block);
+        setStatus('🗑️ Блок удалён');
+        longPressTimer = null;
+      }
+    }, 600);
+  } else if (controlMode === 'teleport') {
+    // Показать индикатор
+    const ndc = getPointerNDC(e.clientX, e.clientY);
+    raycaster.setFromCamera(new THREE.Vector2(ndc.x, ndc.y), camera);
+    const plane = new THREE.Plane(new THREE.Vector3(0,1,0), 0);
+    const intersect = new THREE.Vector3();
+    if (raycaster.ray.intersectPlane(plane, intersect)) {
+      teleportTarget.copy(intersect);
+      const rect = renderer.domElement.getBoundingClientRect();
+      const screenPos = intersect.clone().project(camera);
+      teleportIndicator.style.left = ((screenPos.x * 0.5 + 0.5) * rect.width) + 'px';
+      teleportIndicator.style.top = ((-screenPos.y * 0.5 + 0.5) * rect.height) + 'px';
+      teleportIndicator.classList.add('active');
+    }
   }
 });
+
 renderer.domElement.addEventListener('pointermove', (e) => {
-  if (controlMode === 'teleport' && teleportActive) {
-    updateTeleportIndicator(e.clientX, e.clientY);
+  // Отмена долгого нажатия если сильно сдвинули
+  if (longPressTimer) {
+    const dx = e.clientX - pointerDownPos.x;
+    const dy = e.clientY - pointerDownPos.y;
+    if (dx*dx + dy*dy > 100) {
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
+    }
   }
 });
+
 renderer.domElement.addEventListener('pointerup', (e) => {
-  if (controlMode === 'teleport' && teleportActive) {
-    doTeleport(e.clientX, e.clientY);
-    teleportActive = false;
+  if (longPressTimer) {
+    clearTimeout(longPressTimer);
+    longPressTimer = null;
+  }
+  const elapsed = Date.now() - pointerDownTime;
+  const dx = e.clientX - pointerDownPos.x;
+  const dy = e.clientY - pointerDownPos.y;
+  const moved = Math.sqrt(dx*dx + dy*dy);
+
+  // Короткий тап = действие
+  if (elapsed < 500 && moved < 10) {
+    if (buildMode) {
+      const hit = getGroundIntersect(e.clientX, e.clientY);
+      if (hit) {
+        const type = document.getElementById('buildBlock').value;
+        placeBlock(hit.gridPos.x, hit.gridPos.y, hit.gridPos.z, type);
+        setStatus(`🧱 ${BLOCK_TYPES[type] ? type : 'блок'} поставлен`);
+      }
+    } else if (controlMode === 'teleport') {
+      // Телепорт
+      const start = controls.target.clone();
+      const end = teleportTarget.clone();
+      end.y = 1.2;
+      const st = performance.now();
+      const animateTp = () => {
+        const e2 = Math.min((performance.now() - st) / 400, 1);
+        const k = 1 - Math.pow(1 - e2, 3);
+        controls.target.lerpVectors(start, end, k);
+        const camOffset = camera.position.clone().sub(start);
+        camera.position.copy(end.clone().add(camOffset));
+        if (e2 < 1) requestAnimationFrame(animateTp);
+      };
+      animateTp();
+      teleportIndicator.classList.remove('active');
+      setStatus('🎯 Телепорт');
+    }
+  } else {
+    teleportIndicator.classList.remove('active');
   }
 });
 
@@ -1174,14 +2038,13 @@ renderer.domElement.addEventListener('pointerup', (e) => {
 const statusEl = document.getElementById('status');
 function setStatus(m) { statusEl.textContent = m; }
 
-// Скины
+// --- СКИНЫ ---
 document.getElementById('skinInput').addEventListener('change', e => {
   const f = e.target.files[0]; if (!f) return;
   const r = new FileReader();
   r.onload = ev => {
     const img = new Image();
     img.onload = () => {
-      if (img.width !== 64 || img.height !== 64) setStatus('⚠️ Не 64×64, может быть смещение');
       const tex = new THREE.Texture(img);
       tex.magFilter = THREE.NearestFilter;
       tex.minFilter = THREE.NearestFilter;
@@ -1209,87 +2072,100 @@ document.getElementById('loadSkin').addEventListener('click', () => {
     buildSkinModel(tex);
     setStatus(`✅ Скин "${n}" загружен`);
   };
-  img.onerror = () => setStatus('❌ Не удалось загрузить. Загрузи PNG вручную.');
+  img.onerror = () => setStatus('❌ Не удалось. Загрузи PNG вручную.');
   img.src = `https://mc-heads.net/skin/${encodeURIComponent(n)}`;
 });
 
-// Предметы
-document.querySelectorAll('.item-btn').forEach(btn => {
-  btn.onclick = () => {
-    document.querySelectorAll('.item-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentItem = btn.dataset.item;
-    updateHeldItem();
-    setStatus(`Предмет: ${btn.textContent}`);
-  };
-});
+// --- КАТЕГОРИИ ПРЕДМЕТОВ ---
+document.getElementById('itemCategory').onchange = e => {
+  buildItemGrid(e.target.value);
+};
+buildItemGrid('swords');
+
 document.getElementById('handSelect').onchange = e => {
   currentHand = e.target.value;
   updateHeldItem();
 };
 
-// Анимация
+// --- ЛОКАЦИИ ---
+document.querySelectorAll('.loc-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.loc-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    generateLocation(btn.dataset.loc);
+  };
+});
+document.getElementById('regenerateLoc').onclick = () => {
+  generateLocation(currentLocation);
+};
+document.getElementById('locDensity').oninput = () => {
+  // Не генерируем сразу — только при клике
+};
+
+// --- СТРОИТЕЛЬСТВО ---
+document.getElementById('toggleBuild').onclick = () => {
+  buildMode = !buildMode;
+  document.getElementById('buildModeIndicator').classList.toggle('active', buildMode);
+  document.getElementById('toggleBuild').classList.toggle('orange', buildMode);
+  setStatus(buildMode ? '🧱 Строительство: тап по сцене' : '👁️ Режим осмотра');
+};
+document.getElementById('clearBuild').onclick = () => {
+  if (confirm('Удалить все блоки?')) {
+    clearAllBlocks();
+    setStatus('🗑️ Все блоки удалены');
+  }
+};
+
+// --- АНИМАЦИИ ---
 document.getElementById('animSelect').onchange = e => {
   animationState = e.target.value;
   animTime = 0; customPlayTime = 0;
   if (animationState === 'custom') {
     document.getElementById('timeline').classList.remove('hidden');
+    document.getElementById('anim-panel').classList.add('open');
   }
 };
 document.getElementById('playBtn').onclick = () => { isPlaying = true; setStatus('▶'); };
 document.getElementById('pauseBtn').onclick = () => { isPlaying = false; setStatus('⏸'); };
 document.getElementById('speedRange').oninput = e => { animSpeed = parseFloat(e.target.value); };
 
-// Фон
+// --- ФОН ---
 document.getElementById('bgColor').oninput = e => {
   document.getElementById('bgPreset').value = 'custom';
-  setBackground('custom', e.target.value);
+  scene.background = new THREE.Color(e.target.value);
 };
 document.getElementById('bgHue').oninput = e => {
   const h = e.target.value;
   const c = new THREE.Color().setHSL(h/360, 0.7, 0.6);
   document.getElementById('bgPreset').value = 'custom';
   document.getElementById('bgColor').value = '#' + c.getHexString();
-  setBackground('custom', c);
+  scene.background = c;
 };
 document.getElementById('bgPreset').onchange = e => {
-  setBackground(e.target.value, document.getElementById('bgColor').value);
+  const colors = { day: 0x87CEEB, sunset: 0xFFA07A, night: 0x191970, nether: 0x5C1010, end: 0x1A0033, green: 0x00FF00, blue: 0x0000FF };
+  if (e.target.value === 'custom') {
+    scene.background = new THREE.Color(document.getElementById('bgColor').value);
+  } else {
+    scene.background = new THREE.Color(colors[e.target.value] || 0x87CEEB);
+  }
 };
 
-// Пол
-document.getElementById('floorType').onchange = e => setFloor(e.target.value);
-document.getElementById('floorLess').onclick = () => { floorSize = Math.max(4, floorSize - 4); setFloor(document.getElementById('floorType').value); };
-document.getElementById('floorMore').onclick = () => { floorSize = Math.min(60, floorSize + 4); setFloor(document.getElementById('floorType').value); };
-
-// Мир
-document.getElementById('addTree').onclick = () => { addTree((Math.random()-0.5)*6, (Math.random()-0.5)*6); setStatus('🌳'); };
-document.getElementById('addBlock').onclick = () => {
-  const c = [0x8B5A2B,0x888888,0xA0522D,0xFFD700][Math.floor(Math.random()*4)];
-  addBlock((Math.random()-0.5)*6, 0, (Math.random()-0.5)*6, c);
-  setStatus('🧱');
-};
-document.getElementById('addHouse').onclick = () => { addHouse(3, -3); setStatus('🏠'); };
-document.getElementById('addStruct').onclick = () => { addStructure(-4, -4); setStatus('🏛️'); };
-document.getElementById('clearScene').onclick = () => { clearScene(); setStatus('🗑️'); };
-
-// Управление
+// --- УПРАВЛЕНИЕ ---
 document.getElementById('controlMode').onchange = e => {
   controlMode = e.target.value;
   if (controlMode === 'orbit') {
-    controls.enabled = true;
-    controls.enablePan = true;
+    controls.enabled = true; controls.enablePan = true;
     setStatus('🖱️ Орбита');
   } else if (controlMode === 'teleport') {
     controls.enabled = false;
-    setStatus('🎯 Телепорт: тап по сцене');
+    setStatus('🎯 Телепорт');
   } else if (controlMode === 'follow') {
-    controls.enabled = true;
-    controls.enablePan = false;
+    controls.enabled = true; controls.enablePan = false;
     setStatus('📷 Следит');
   }
 };
 
-// Скриншот
+// --- СКРИНШОТ / ЗАПИСЬ ---
 document.getElementById('screenshotBtn').onclick = () => {
   renderer.render(scene, camera);
   const url = renderer.domElement.toDataURL('image/png');
@@ -1299,15 +2175,11 @@ document.getElementById('screenshotBtn').onclick = () => {
   a.click();
   setStatus('📸 Сохранено');
 };
-
-// Запись
 let mediaRecorder = null, chunks = [];
 document.getElementById('recordBtn').onclick = () => {
   const stream = renderer.domElement.captureStream(30);
   const fmt = document.getElementById('recordFormat').value;
-  const options = fmt === 'mp4'
-    ? { mimeType: 'video/mp4;codecs=h264' }
-    : { mimeType: 'video/webm;codecs=vp9' };
+  const options = fmt === 'mp4' ? { mimeType: 'video/mp4;codecs=h264' } : { mimeType: 'video/webm;codecs=vp9' };
   if (!MediaRecorder.isTypeSupported(options.mimeType)) {
     options.mimeType = 'video/webm';
     setStatus('⚠️ Формат: WebM');
@@ -1321,8 +2193,7 @@ document.getElementById('recordBtn').onclick = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.download = `anim-${Date.now()}.${ext}`;
-    a.href = url;
-    a.click();
+    a.href = url; a.click();
     setStatus('🎥 Сохранено');
   };
   mediaRecorder.start();
@@ -1337,7 +2208,51 @@ document.getElementById('stopRecordBtn').onclick = () => {
   document.getElementById('stopRecordBtn').style.display = 'none';
 };
 
-// Таймлайн
+// --- ПАНЕЛЬ ПОВОРОТОВ ---
+document.getElementById('toggleAnimPanel').onclick = () => {
+  document.getElementById('anim-panel').classList.toggle('open');
+};
+document.getElementById('togglePanelBtn').onclick = () => {
+  document.getElementById('anim-panel').classList.toggle('open');
+};
+document.querySelectorAll('#partButtons button').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('#partButtons button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedPart = btn.dataset.part;
+    updateSlidersFromPart();
+  };
+});
+['rotX', 'rotY', 'rotZ'].forEach(id => {
+  document.getElementById(id).oninput = applySlidersToPart;
+});
+document.getElementById('applyAndKey').onclick = () => {
+  applySlidersToPart();
+  const obj = getPartObject(selectedPart);
+  if (!obj) return;
+  const idx = keyframes.findIndex(k => k.frame === currentFrame && k.part === selectedPart);
+  const kf = {
+    frame: currentFrame, part: selectedPart,
+    rot: { x: obj.rotation.x, y: obj.rotation.y, z: obj.rotation.z },
+    pos: { x: obj.position.x, y: obj.position.y, z: obj.position.z }
+  };
+  if (idx >= 0) keyframes[idx] = kf; else keyframes.push(kf);
+  buildTimelineUI();
+  setStatus(`✓ Ключ ${partNames[selectedPart]} на кадре ${currentFrame}`);
+};
+document.getElementById('resetPart').onclick = () => {
+  const obj = getPartObject(selectedPart);
+  if (!obj) return;
+  obj.rotation.set(0,0,0);
+  document.getElementById('rotX').value = 0;
+  document.getElementById('rotY').value = 0;
+  document.getElementById('rotZ').value = 0;
+  document.getElementById('rotXVal').textContent = '0°';
+  document.getElementById('rotYVal').textContent = '0°';
+  document.getElementById('rotZVal').textContent = '0°';
+};
+
+// --- ТАЙМЛАЙН ---
 document.getElementById('toggleTimelineBtn').onclick = () => {
   document.getElementById('timeline').classList.toggle('hidden');
 };
@@ -1352,25 +2267,16 @@ document.getElementById('tlPlay').onclick = () => {
   isPlaying = !isPlaying;
   document.getElementById('tlPlay').textContent = isPlaying ? '⏸' : '▶';
 };
-document.getElementById('tlAddFrame').onclick = () => {
-  if (timelineFrames < 60) { timelineFrames++; buildTimelineUI(); }
-};
-document.getElementById('tlRemoveFrame').onclick = () => {
-  if (timelineFrames > 2) { timelineFrames--; buildTimelineUI(); }
-};
+document.getElementById('tlAddFrame').onclick = () => { if (timelineFrames < 60) { timelineFrames++; buildTimelineUI(); } };
+document.getElementById('tlRemoveFrame').onclick = () => { if (timelineFrames > 2) { timelineFrames--; buildTimelineUI(); } };
 document.getElementById('tlClear').onclick = () => {
-  keyframes = []; buildTimelineUI(); setStatus('🗑 Ключи очищены');
+  if (confirm('Удалить все ключи?')) { keyframes = []; buildTimelineUI(); setStatus('🗑 Ключи очищены'); }
 };
 document.getElementById('tlSlider').oninput = e => setCurrentFrame(parseInt(e.target.value));
 
-// Сохранение/загрузка
+// --- СОХРАНЕНИЕ АНИМАЦИЙ ---
 document.getElementById('saveAnimBtn').onclick = () => {
-  saveCurrentPoseAsKeyframe();
-  const data = {
-    name: document.getElementById('animName').value,
-    frames: timelineFrames,
-    keyframes
-  };
+  const data = { name: document.getElementById('animName').value, frames: timelineFrames, keyframes };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1381,8 +2287,7 @@ document.getElementById('saveAnimBtn').onclick = () => {
 };
 document.getElementById('loadAnimBtn').onclick = () => {
   const inp = document.createElement('input');
-  inp.type = 'file';
-  inp.accept = 'application/json';
+  inp.type = 'file'; inp.accept = 'application/json';
   inp.onchange = e => {
     const f = e.target.files[0]; if (!f) return;
     const r = new FileReader();
@@ -1397,9 +2302,7 @@ document.getElementById('loadAnimBtn').onclick = () => {
         animationState = 'custom';
         buildTimelineUI();
         setStatus('📂 Загружено');
-      } catch(err) {
-        setStatus('❌ Ошибка файла');
-      }
+      } catch(err) { setStatus('❌ Ошибка'); }
     };
     r.readAsText(f);
   };
@@ -1407,25 +2310,22 @@ document.getElementById('loadAnimBtn').onclick = () => {
 };
 document.getElementById('newAnimBtn').onclick = () => {
   if (confirm('Новая анимация? Текущие ключи удалятся.')) {
-    keyframes = [];
-    timelineFrames = 20;
-    currentFrame = 0;
+    keyframes = []; timelineFrames = 20; currentFrame = 0;
     document.getElementById('animName').value = 'Моя анимация';
     document.getElementById('currentAnimName').textContent = 'Моя анимация';
     buildTimelineUI();
     document.getElementById('timeline').classList.remove('hidden');
+    document.getElementById('anim-panel').classList.add('open');
     animationState = 'custom';
     document.getElementById('animSelect').value = 'custom';
     setStatus('➕ Новая');
   }
 };
 
-// Мобильное меню
+// --- МЕНЮ / СЕКЦИИ ---
 document.getElementById('menuToggle').onclick = () => {
   document.getElementById('sidebar').classList.toggle('open');
 };
-
-// Сворачивание секций
 document.querySelectorAll('#sidebar h2').forEach(h => {
   const section = h.nextElementSibling;
   if (section) {
@@ -1444,14 +2344,10 @@ function animate() {
   const now = performance.now();
   const dt = Math.min((now - last)/1000, 0.1);
   last = now;
-
   if (controlMode !== 'teleport') controls.update();
-
   if (controlMode === 'follow' && skinModel) {
-    const target = new THREE.Vector3(0, 1.5, 0);
-    controls.target.lerp(target, 0.05);
+    controls.target.lerp(new THREE.Vector3(0, 1.2, 0), 0.05);
   }
-
   updateAnimation(dt);
   renderer.render(scene, camera);
 }
@@ -1463,11 +2359,12 @@ window.addEventListener('resize', () => {
 });
 
 // ==================== СТАРТ ====================
-setFloor('grass');
+generateLocation('forest');
 buildSkinModel(createDefaultSkin());
 buildTimelineUI();
+document.querySelector('#partButtons button[data-part="head"]').classList.add('active');
 animate();
-setStatus('✅ Готово!');
+setStatus('✅ Готово! Выбери предмет и локацию');
 </script>
 </body>
- </html>
+       </html>
