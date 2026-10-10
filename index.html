@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Minecraft Skin Animator PRO</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #1a1a1a; color: #fff;
+    display: flex; height: 100vh; overflow: hidden;
+  }
+  #sidebar {
+    width: 300px; background: #2a2a2a; padding: 12px;
+    overflow-y: auto; border-right: 2px solid #444;
+    transition: transform 0.3s;
+  }
+  #sidebar.hidden { transform: translateX(-100%); position: absolute; z-index: 100; height: 100%; }
+  #sidebar h1 { font-size: 16px; color: #4CAF50; text-align: center; margin-bottom: 8px; }
+  #sidebar h2 {
+    font-size: 13px; margin: 12px 0 6px; color: #4CAF50;
+    border-bottom: 1px solid #444; padding-bottom: 4px;
+    cursor: pointer; user-select: none;
+  }
+  #sidebar h2::before { content: '▼ '; font-size: 10px; }
+  #sidebar h2.collapsed::before { content: '▶ '; }
+  .section { overflow: hidden; transition: max-height 0.3s; }
+  .section.collapsed { max-height: 0 !important; }
+  label { display: block; font-size: 12px; margin: 6px 0 3px; color: #ccc; }
+  input[type="file"], input[type="text"], input[type="number"], select {
+    width: 100%; padding: 6px; background: #1a1a1a;
+    border: 1px solid #555; color: #fff; border-radius: 4px; font-size: 12px;
+  }
+  input[type="range"] { width: 100%; }
+  button {
+    padding: 7px 10px; margin: 4px 0; background: #4CAF50;
+    border: none; color: #fff; border-radius: 4px; cursor: pointer;
+    font-size: 12px; transition: 0.15s;
+  }
+  button:hover { background: #45a049; }
+  button:active { transform: scale(0.97); }
+  button.danger { background: #d32f2f; }
+  button.danger:hover { background: #b71c1c; }
+  button.secondary { background: #555; }
+  button.secondary:hover { background: #666; }
+  button.blue { background: #2196F3; }
+  button.blue:hover { background: #1976D2; }
+  button.purple { background: #9C27B0; }
+  button.purple:hover { background: #7B1FA2; }
+  #canvas-container { flex: 1; position: relative; background: #87CEEB; touch-action: none; }
+  #canvas-container canvas { display: block; }
+  #status {
+    position: absolute; top: 10px; left: 10px;
+    background: rgba(0,0,0,0.75); padding: 6px 10px;
+    border-radius: 4px; font-size: 11px; z-index: 10;
+    pointer-events: none;
+  }
+  #menuToggle {
+    position: absolute; top: 10px; right: 10px; z-index: 20;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: #4CAF50; border: none; color: #fff;
+    font-size: 18px; cursor: pointer; display: none;
+  }
+  .color-row { display: flex; align-items: center; gap: 6px; margin: 4px 0; }
+  .color-row input[type="color"] {
+    width: 36px; height: 28px; padding: 0;
+    border: 1px solid #555; background: none;
+  }
+  .color-row input[type="range"] { flex: 1; }
+  .btn-row { display: flex; gap: 4px; flex-wrap: wrap; }
+  .btn-row button { flex: 1; min-width: 60px; }
+  .hint { font-size: 10px; color: #888; margin-top: 3px; line-height: 1.4; }
+  .item-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
+  }
+  .item-btn {
+    padding: 8px 4px; font-size: 11px; background: #3a3a3a;
+    border: 1px solid #555; border-radius: 4px;
+    cursor: pointer; text-align: center; color: #fff;
+  }
+  .item-btn:hover { background: #4a4a4a; }
+  .item-btn.active { background: #4CAF50; border-color: #4CAF50; }
+  .item-btn .icon { font-size: 18px; display: block; margin-bottom: 2px; }
+
+  /* Таймлайн */
+  #timeline {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 180px; background: rgba(20,20,20,0.95);
+    border-top: 2px solid #4CAF50;
+    padding: 8px; z-index: 15; display: flex; flex-direction: column;
+  }
+  #timeline.hidden { display: none; }
+  #timeline-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 6px; font-size: 12px;
+  }
+  #timeline-body {
+    flex: 1; overflow-x: auto; overflow-y: auto;
+    background: #111; border-radius: 4px; padding: 4px;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .keyframe-track {
+    display: flex; align-items: center; gap: 4px;
+    height: 26px; background: #222; border-radius: 3px;
+    padding: 0 4px; min-width: max-content;
+  }
+  .track-label {
+    width: 90px; font-size: 10px; color: #aaa;
+    flex-shrink: 0;
+  }
+  .track-slots {
+    display: flex; gap: 2px; flex: 1;
+  }
+  .keyframe-slot {
+    width: 22px; height: 20px; background: #333;
+    border: 1px solid #444; border-radius: 2px;
+    cursor: pointer; flex-shrink: 0; font-size: 9px;
+    display: flex; align-items: center; justify-content: center;
+    color: #666;
+  }
+  .keyframe-slot.has-keyframe {
+    background: #4CAF50; color: #fff; border-color: #4CAF50;
+  }
+  .keyframe-slot.current { outline: 2px solid #FFC107; }
+  #timeline-controls {
+    display: flex; gap: 6px; margin-bottom: 6px; align-items: center;
+  }
+  #timeline-controls button { margin: 0; padding: 4px 8px; font-size: 11px; }
+  #timeline-controls input[type="range"] { flex: 1; }
+
+  /* Мобильное управление для телепорта */
+  #teleport-overlay {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 5; pointer-events: none;
+  }
+  #teleport-indicator {
+    position: absolute; width: 60px; height: 60px;
+    border: 3px solid #FFC107; border-radius: 50%;
+    transform: translate(-50%, -50%); pointer-events: none;
+    opacity: 0; transition: opacity 0.15s;
+    box-shadow: 0 0 20px #FFC10788;
+  }
+  #teleport-indicator.active { opacity: 1; }
+  #teleport-indicator::before, #teleport-indicator::after {
+    content: ''; position: absolute; background: #FFC107;
+  }
+  #teleport-indicator::before {
+    left: 50%; top: 50%; width: 3px; height: 3px;
+    transform: translate(-50%, -50%); border-radius: 50%;
+  }
+
+  /* Кнопка таймлайна */
+  #toggleTimeline {
+    position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+    z-index: 16; padding: 8px 20px; background: #9C27B0;
+    border: none; color: #fff; border-radius: 20px; cursor: pointer;
+    font-size: 12px;
+  }
+  #toggleTimeline:hover { background: #7B1FA2; }
+
+  @media (max-width: 768px) {
+    #sidebar { width: 85%; max-width: 320px; }
+    #menuToggle { display: block; }
+    #sidebar { transform: translateX(-100%); }
+    #sidebar.open { transform: translateX(0); }
+  }
+
+  /* Хромакей превью */
+  .chroma-note {
+    font-size: 10px; color: #FFC107; margin-top: 3px;
+  }
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+  <h1>🎮 Skin Animator PRO</h1>
+
+  <h2>1. Скин</h2>
+  <div class="section">
+    <label>PNG скина (64×64)</label>
+    <input type="file" id="skinInput" accept="image/png">
+    <label>или имя игрока</label>
+    <input type="text" id="username" placeholder="Notch">
+    <button id="loadSkin">Загрузить скин</button>
+  </div>
+
+  <h2>2. Предметы в руках</h2>
+  <div class="section">
+    <div class="item-grid" id="itemGrid">
+      <div class="item-btn" data-item="none"><span class="icon">🚫</span>Нет</div>
+      <div class="item-btn" data-item="sword_diamond"><span class="icon">⚔️</span>Алмазный меч</div>
+      <div class="item-btn" data-item="sword_iron"><span class="icon">🗡️</span>Железный меч</div>
+      <div class="item-btn" data-item="sword_netherite"><span class="icon">🖤</span>Незерит. меч</div>
+      <div class="item-btn" data-item="mace"><span class="icon">🔨</span>Булава</div>
+      <div class="item-btn" data-item="fishing_rod"><span class="icon">🎣</span>Удочка</div>
+      <div class="item-btn" data-item="ender_pearl"><span class="icon">🟣</span>Эндерпёрл</div>
+      <div class="item-btn" data-item="bow"><span class="icon">🏹</span>Лук</div>
+      <div class="item-btn" data-item="pickaxe"><span class="icon">⛏️</span>Кирка</div>
+      <div class="item-btn" data-item="block_grass"><span class="icon">🟩</span>Блок травы</div>
+      <div class="item-btn" data-item="block_stone"><span class="icon">⬜</span>Камень</div>
+      <div class="item-btn" data-item="torch"><span class="icon">🔥</span>Факел</div>
+    </div>
+    <label style="margin-top:8px;">Рука для предмета</label>
+    <select id="handSelect">
+      <option value="right">Правая</option>
+      <option value="left">Левая</option>
+    </select>
+  </div>
+
+  <h2>3. Анимация</h2>
+  <div class="section">
+    <select id="animSelect">
+      <option value="idle">Стойка (Idle)</option>
+      <option value="walk">Ходьба</option>
+      <option value="run">Бег</option>
+      <option value="wave">Машет рукой</option>
+      <option value="jump">Прыжки</option>
+      <option value="dance">Танец</option>
+      <option value="spin">Вращение</option>
+      <option value="sword_swing">Взмах мечом</option>
+      <option value="mace_smash">Удар булавы</option>
+      <option value="fishing">Заброс удочки</option>
+      <option value="throw_pearl">Бросок эндерпёрла</option>
+      <option value="custom">🎬 СВОЯ (конструктор)</option>
+    </select>
+    <div class="btn-row">
+      <button id="playBtn">▶ Играть</button>
+      <button id="pauseBtn" class="secondary">⏸</button>
+    </div>
+    <label>Скорость</label>
+    <input type="range" id="speedRange" min="0.1" max="3" step="0.1" value="1">
+  </div>
+
+  <h2>4. Фон</h2>
+  <div class="section">
+    <div class="color-row">
+      <input type="color" id="bgColor" value="#87CEEB">
+      <input type="range" id="bgHue" min="0" max="360" value="200">
+    </div>
+    <select id="bgPreset">
+      <option value="day">☀️ День</option>
+      <option value="sunset">🌅 Закат</option>
+      <option value="night">🌙 Ночь</option>
+      <option value="nether">🔥 Незер</option>
+      <option value="end">🌌 Энд</option>
+      <option value="green">🟢 Хромакей зелёный</option>
+      <option value="blue">🔵 Хромакей синий</option>
+      <option value="custom">🎨 Свой цвет</option>
+    </select>
+    <div class="chroma-note">💡 Хромакей: для наложения в видеоредакторе</div>
+  </div>
+
+  <h2>5. Пол</h2>
+  <div class="section">
+    <select id="floorType">
+      <option value="grass">🌱 Трава</option>
+      <option value="stone">🪨 Камень</option>
+      <option value="sand">🏖️ Песок</option>
+      <option value="wood">🪵 Дерево</option>
+      <option value="netherrack">🔥 Незерак</option>
+      <option value="snow">❄️ Снег</option>
+      <option value="none">❌ Нет (хромакей)</option>
+    </select>
+    <div class="btn-row">
+      <button class="secondary" id="floorLess">-</button>
+      <button class="secondary" id="floorMore">+</button>
+    </div>
+    <div class="hint">Размер пола</div>
+  </div>
+
+  <h2>6. Мир</h2>
+  <div class="section">
+    <div class="btn-row">
+      <button id="addTree">🌳 Дерево</button>
+      <button id="addBlock">🧱 Блок</button>
+    </div>
+    <div class="btn-row">
+      <button id="addHouse">🏠 Дом</button>
+      <button id="addStruct">🏛️ Пирамида</button>
+    </div>
+    <button id="clearScene" class="danger">🗑️ Очистить сцену</button>
+  </div>
+
+  <h2>7. Управление</h2>
+  <div class="section">
+    <select id="controlMode">
+      <option value="orbit">🖱️ Орбита (стандарт)</option>
+      <option value="teleport">🎯 Телепорт (телекинез)</option>
+      <option value="follow">📷 Следит за игроком</option>
+    </select>
+    <div class="hint">
+      <b>Орбита:</b> ЛКМ/1 палец — вращение, колесо/2 пальца — зум<br>
+      <b>Телепорт:</b> тапни в точку — камера переместится туда<br>
+      <b>Следит:</b> камера держит игрока в центре
+    </div>
+  </div>
+
+  <h2>8. Экспорт</h2>
+  <div class="section">
+    <button id="screenshotBtn" class="secondary">📸 Скачать фото (PNG)</button>
+    <button id="recordBtn" class="danger">🎥 Записать видео</button>
+    <button id="stopRecordBtn" class="secondary" style="display:none;">⏹ Остановить</button>
+    <label>Формат</label>
+    <select id="recordFormat">
+      <option value="webm">WebM (быстро)</option>
+      <option value="mp4">MP4 (если поддерживается)</option>
+    </select>
+    <div class="hint">Для MP4 лучше использовать Chrome. WebM открывается везде, конвертируется онлайн.</div>
+  </div>
+
+  <h2>9. Конструктор анимаций</h2>
+  <div class="section">
+    <button class="purple" id="toggleTimelineBtn">🎬 Открыть таймлайн</button>
+    <button class="purple" id="newAnimBtn">➕ Новая анимация</button>
+    <label>Название</label>
+    <input type="text" id="animName" value="Моя анимация">
+    <div class="btn-row">
+      <button class="blue" id="saveAnimBtn">💾 Сохранить</button>
+      <button class="secondary" id="loadAnimBtn">📂 Загрузить</button>
+    </div>
+    <div class="hint">Экспорт в JSON-файл и импорт обратно</div>
+  </div>
+</div>
+
+<button id="menuToggle">☰</button>
+
+<div id="canvas-container">
+  <div id="status">Готов</div>
+  <div id="teleport-overlay">
+    <div id="teleport-indicator"></div>
+  </div>
+  <button id="toggleTimeline">🎬 Таймлайн</button>
+
+  <div id="timeline" class="hidden">
+    <div id="timeline-header">
+      <span>🎬 Конструктор: <b id="currentAnimName">Моя анимация</b></span>
+      <span>Кадров: <b id="frameCount">20</b> | FPS: <b id="fpsDisplay">20</b></span>
+    </div>
+    <div id="timeline-controls">
+      <button class="secondary" id="tlPrev">◀</button>
+      <button class="blue" id="tlPlay">▶</button>
+      <button class="secondary" id="tlNext">▶</button>
+      <button class="secondary" id="tlAddFrame">+ кадр</button>
+      <button class="secondary" id="tlRemoveFrame">- кадр</button>
+      <button class="danger" id="tlClear">🗑 Ключи</button>
+      <input type="range" id="tlSlider" min="0" max="19" value="0">
+      <span id="tlFrameLabel">0/19</span>
+    </div>
+    <div id="timeline-body"></div>
+  </div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// ==================== СЦЕНА ====================
+const container = document.getElementById('canvas-container');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x87CEEB);
+
+const camera = new THREE.PerspectiveCamera(50, container.clientWidth/container.clientHeight, 0.1, 1000);
+camera.position.set(4, 4, 8);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: false });
+renderer.setSize(container.clientWidth, container.clientHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+container.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 1.5, 0);
+controls.enableDamping = true;
+controls.dampingFactor = 0.1;
+controls.maxPolarAngle = Math.PI / 2;
+controls.minDistance = 2;
+controls.maxDistance = 30;
+
+const ambient = new THREE.AmbientLight(0xffffff, 0.7);
+scene.add(ambient);
+const sun = new THREE.DirectionalLight(0xffffff, 1.2);
+sun.position.set(5, 10, 5);
+sun.castShadow = true;
+sun.shadow.mapSize.set(1024, 1024);
+sun.shadow.camera.left = -15;
+sun.shadow.camera.right = 15;
+sun.shadow.camera.top = 15;
+sun.shadow.camera.bottom = -15;
+scene.add(sun);
+
+// ==================== СКИН ====================
+let skinModel = null;
+let bodyParts = {};
+let currentSkinTex = null;
+let heldItemMesh = null;
+
+function createDefaultSkin() {
+  const c = document.createElement('canvas');
+  c.width = 64; c.height = 64;
+  const ctx = c.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  // Фон — прозрачный
+  ctx.clearRect(0,0,64,64);
+  // Голова (front 8,8, 8x8)
+  ctx.fillStyle = '#B88A62'; ctx.fillRect(8,8,8,8);
+  ctx.fillStyle = '#3A2418'; ctx.fillRect(8,8,8,2); // волосы
+  ctx.fillStyle = '#FFFFFF'; ctx.fillRect(9,11,2,2); ctx.fillRect(13,11,2,2);
+  ctx.fillStyle = '#3B2A1A'; ctx.fillRect(10,12,1,1); ctx.fillRect(14,12,1,1);
+  ctx.fillStyle = '#8B5A3C'; ctx.fillRect(11,14,2,1); // рот
+  // Голова (side/back/top/bottom)
+  ctx.fillStyle = '#B88A62'; ctx.fillRect(0,8,8,8); ctx.fillRect(16,8,8,8); ctx.fillRect(24,8,8,8);
+  ctx.fillStyle = '#3A2418'; ctx.fillRect(0,8,8,2); ctx.fillRect(16,8,8,2); ctx.fillRect(24,8,8,2);
+  ctx.fillStyle = '#3A2418'; ctx.fillRect(8,0,8,8);
+  // Тело (front 20,20, 8x12)
+  ctx.fillStyle = '#00A0FF'; ctx.fillRect(20,20,8,12);
+  ctx.fillStyle = '#0080CC'; ctx.fillRect(20,26,8,1);
+  // Тело side/back
+  ctx.fillStyle = '#00A0FF'; ctx.fillRect(16,20,4,12); ctx.fillRect(28,20,4,12); ctx.fillRect(32,20,8,12);
+  // Руки (front 44,20)
+  ctx.fillStyle = '#B88A62'; ctx.fillRect(44,20,4,12); // правая
+  ctx.fillStyle = '#00A0FF'; ctx.fillRect(44,20,4,5); // рукав
+  // Левая рука
+  ctx.fillStyle = '#B88A62'; ctx.fillRect(36,52,4,12);
+  ctx.fillStyle = '#00A0FF'; ctx.fillRect(36,52,4,5);
+  // Ноги (front 4,20)
+  ctx.fillStyle = '#2E4A8C'; ctx.fillRect(4,20,4,12);
+  ctx.fillStyle = '#1A1A1A'; ctx.fillRect(4,28,4,4); // обувь
+  // Левая нога
+  ctx.fillStyle = '#2E4A8C'; ctx.fillRect(20,52,4,12);
+  ctx.fillStyle = '#1A1A1A'; ctx.fillRect(20,60,4,4);
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.magFilter = THREE.NearestFilter;
+  tex.minFilter = THREE.NearestFilter;
+  tex.needsUpdate = true;
+  return tex;
+}
+
+function makeBodyPart(w, h, d, tex, uv) {
+  const geo = new THREE.BoxGeometry(w, h, d);
+  if (uv) {
+    const uvs = geo.attributes.uv.array;
+    const setFace = (i, x, y, w, h) => {
+      const u0 = x/64, v0 = 1 - y/64;
+      const u1 = (x+w)/64, v1 = 1 - (y+h)/64;
+      const o = i * 8;
+      uvs[o+0]=u0; uvs[o+1]=v1;
+      uvs[o+2]=u1; uvs[o+3]=v1;
+      uvs[o+4]=u0; uvs[o+5]=v0;
+      uvs[o+6]=u1; uvs[o+7]=v0;
+    };
+    // порядок: right, left, top, bottom, front, back
+    setFace(0, uv.right[0], uv.right[1], uv.right[2], uv.right[3]);
+    setFace(1, uv.left[0], uv.left[1], uv.left[2], uv.left[3]);
+    setFace(2, uv.top[0], uv.top[1], uv.top[2], uv.top[3]);
+    setFace(3, uv.bottom[0], uv.bottom[1], uv.bottom[2], uv.bottom[3]);
+    setFace(4, uv.front[0], uv.front[1], uv.front[2], uv.front[3]);
+    setFace(5, uv.back[0], uv.back[1], uv.back[2], uv.back[3]);
+    geo.attributes.uv.needsUpdate = true;
+  }
+  const mat = new THREE.MeshLambertMaterial({ map: tex, transparent: true, alphaTest: 0.5 });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.castShadow = true; mesh.receiveShadow = true;
+  return mesh;
+}
+
+function buildSkinModel(tex) {
+  if (skinModel) {
+    scene.remove(skinModel);
+    skinModel.traverse(c => { if (c.isMesh) { c.geometry.dispose(); c.material.dispose(); } });
+  }
+  currentSkinTex = tex;
+  const g = new THREE.Group();
+
+  // Голова
+  const head = makeBodyPart(0.5, 0.5, 0.5, tex, {
+    right:[0,8,8,8], left:[16,8,8,8], top:[8,0,8,8],
+    bottom:[16,0,8,8], front:[8,8,8,8], back:[24,8,8,8]
+  });
+  const headPivot = new THREE.Group();
+  headPivot.position.set(0, 1.5, 0);
+  head.position.y = 0.25;
+  headPivot.add(head);
+
+  // Тело
+  const body = makeBodyPart(0.5, 0.75, 0.25, tex, {
+    right:[16,20,4,12], left:[28,20,4,12], top:[20,16,8,4],
+    bottom:[28,16,8,4], front:[20,20,8,12], back:[32,20,8,12]
+  });
+  body.position.set(0, 0.875, 0);
+
+  // Правая рука (отрицательный X)
+  const rightArm = makeBodyPart(0.25, 0.75, 0.25, tex, {
+    right:[40,20,4,12], left:[48,20,4,12], top:[44,16,4,4],
+    bottom:[48,16,4,4], front:[44,20,4,12], back:[52,20,4,12]
+  });
+  rightArm.position.y = -0.375;
+  const rightArmPivot = new THREE.Group();
+  rightArmPivot.position.set(-0.375, 1.25, 0);
+  rightArmPivot.add(rightArm);
+
+  // Левая рука
+  const leftArm = makeBodyPart(0.25, 0.75, 0.25, tex, {
+    right:[32,52,4,12], left:[40,52,4,12], top:[36,48,4,4],
+    bottom:[40,48,4,4], front:[36,52,4,12], back:[44,52,4,12]
+  });
+  leftArm.position.y = -0.375;
+  const leftArmPivot = new THREE.Group();
+  leftArmPivot.position.set(0.375, 1.25, 0);
+  leftArmPivot.add(leftArm);
+
+  // Правая нога
+  const rightLeg = makeBodyPart(0.25, 0.75, 0.25, tex, {
+    right:[0,20,4,12], left:[8,20,4,12], top:[4,16,4,4],
+    bottom:[8,16,4,4], front:[4,20,4,12], back:[12,20,4,12]
+  });
+  rightLeg.position.y = -0.375;
+  const rightLegPivot = new THREE.Group();
+  rightLegPivot.position.set(-0.125, 0.75, 0);
+  rightLegPivot.add(rightLeg);
+
+  // Левая нога
+  const leftLeg = makeBodyPart(0.25, 0.75, 0.25, tex, {
+    right:[16,52,4,12], left:[24,52,4,12], top:[20,48,4,4],
+    bottom:[24,48,4,4], front:[20,52,4,12], back:[28,52,4,12]
+  });
+  leftLeg.position.y = -0.375;
+  const leftLegPivot = new THREE.Group();
+  leftLegPivot.position.set(0.125, 0.75, 0);
+  leftLegPivot.add(leftLeg);
+
+  g.add(headPivot, body, rightArmPivot, leftArmPivot, rightLegPivot, leftLegPivot);
+  bodyParts = { head: headPivot, rightArm: rightArmPivot, leftArm: leftArmPivot, rightLeg: rightLegPivot, leftLeg: leftLegPivot };
+  skinModel = g;
+  scene.add(g);
+
+  updateHeldItem();
+}
+
+// ==================== ПРЕДМЕТЫ ====================
+let currentItem = 'none';
+let currentHand = 'right';
+
+function createItemMesh(type) {
+  const group = new THREE.Group();
+
+  const boxMat = (color) => new THREE.MeshLambertMaterial({ color });
+
+  switch(type) {
+    case 'sword_diamond':
+    case 'sword_iron':
+    case 'sword_netherite': {
+      const colors = { sword_diamond: 0x4AEDD9, sword_iron: 0xCCCCCC, sword_netherite: 0x4A4048 };
+      const blade = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.9, 0.02), boxMat(colors[type]));
+      blade.position.y = 0.5;
+      const guard = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.06, 0.06), boxMat(0x8B5A2B));
+      guard.position.y = 0.05;
+      const handle = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.25, 0.08), boxMat(0x5A3A1A));
+      handle.position.y = -0.15;
+      const pommel = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.08, 0.1), boxMat(0xFFD700));
+      pommel.position.y = -0.3;
+      group.add(blade, guard, handle, pommel);
+      group.rotation.z = -0.3;
+      break;
+    }
+    case 'mace': {
+      const handle = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.7, 0.08), boxMat(0x6B4423));
+      handle.position.y = 0.35;
+      const head = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, 0.35), boxMat(0x7A7A7A));
+      head.position.y = 0.9;
+      const spike1 = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.3, 4), boxMat(0xAAAAAA));
+      spike1.position.set(0, 1.25, 0);
+      const spike2 = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.3, 4), boxMat(0xAAAAAA));
+      spike2.position.set(0.25, 0.9, 0);
+      spike2.rotation.z = -Math.PI/2;
+      const spike3 = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.3, 4), boxMat(0xAAAAAA));
+      spike3.position.set(-0.25, 0.9, 0);
+      spike3.rotation.z = Math.PI/2;
+      group.add(handle, head, spike1, spike2, spike3);
+      group.rotation.z = -0.4;
+      break;
+    }
+    case 'fishing_rod': {
+      const rod = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1.3, 0.05), boxMat(0x8B5A2B));
+      rod.position.y = 0.65;
+      const reel = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.08, 8), boxMat(0x5A3A1A));
+      reel.position.set(0.08, 0.3, 0);
+      reel.rotation.z = Math.PI/2;
+      const hook = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.15, 0.05), boxMat(0xCCCCCC));
+      hook.position.y = 1.35;
+      group.add(rod, reel, hook);
+      group.rotation.z = -0.5;
+      break;
+    }
+    case 'ender_pearl': {
+      const pearl = new THREE.Mesh(new THREE.SphereGeometry(0.15, 16, 12),
+        new THREE.MeshLambertMaterial({ color: 0x2E7D5B, emissive: 0x1A4A3A }));
+      pearl.position.y = 0.1;
+      // Внутреннее свечение
+      const glow = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 8),
+        new THREE.MeshBasicMaterial({ color: 0x4AE9C8, transparent: true, opacity: 0.6 }));
+      glow.position.y = 0.1;
+      group.add(pearl, glow);
+      break;
+    }
+    case 'bow': {
+      const bowMat = boxMat(0x8B5A2B);
+      const bow = new THREE.Mesh(new THREE.TorusGeometry(0.35, 0.04, 6, 12, Math.PI), bowMat);
+      bow.rotation.z = Math.PI/2;
+      const string1 = new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.7, 0.01), boxMat(0xEEEEEE));
+      string1.position.x = -0.35;
+      group.add(bow, string1);
+      group.rotation.z = -0.6;
+      break;
+    }
+    case 'pickaxe': {
+      const handle = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.8, 0.06), boxMat(0x8B5A2B));
+      handle.position.y = 0.4;
+      const head1 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.08, 0.08), boxMat(0xCCCCCC));
+      head1.position.y = 0.75;
+      const head2 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.15, 0.08), boxMat(0xCCCCCC));
+      head2.position.set(-0.18, 0.65, 0);
+      const head3 = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.15, 0.08), boxMat(0xCCCCCC));
+      head3.position.set(0.18, 0.65, 0);
+      group.add(handle, head1, head2, head3);
+      group.rotation.z = -0.4;
+      break;
+    }
+    case 'block_grass': {
+      const dirt = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), boxMat(0x8B5A2B));
+      const grass = new THREE.Mesh(new THREE.BoxGeometry(0.31, 0.08, 0.31), boxMat(0x4CAF50));
+      grass.position.y = 0.13;
+      group.add(dirt, grass);
+      break;
+    }
+    case 'block_stone': {
+      const block = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), boxMat(0x888888));
+      group.add(block);
+      break;
+    }
+    case 'torch': {
+      const stick = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.5, 0.06), boxMat(0x8B5A2B));
+      const flame = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.15, 0.12),
+        new THREE.MeshBasicMaterial({ color: 0xFFAA00 }));
+      flame.position.y = 0.32;
+      const glow = new THREE.PointLight(0xFFAA00, 1, 3);
+      glow.position.y = 0.4;
+      group.add(stick, flame, glow);
+      break;
+    }
+  }
+
+  group.traverse(c => { if (c.isMesh) c.castShadow = true; });
+  return group;
+}
+
+function updateHeldItem() {
+  // Удалить старый
+  if (heldItemMesh) {
+    heldItemMesh.parent?.remove(heldItemMesh);
+    heldItemMesh.traverse(c => { if (c.isMesh) { c.geometry.dispose(); c.material.dispose(); } });
+    heldItemMesh = null;
+  }
+  if (currentItem === 'none' || !skinModel) return;
+
+  heldItemMesh = createItemMesh(currentItem);
+  // Позиция в руке — "ладонь" снизу руки
+  heldItemMesh.position.set(0, -0.75, 0);
+  const arm = currentHand === 'right' ? bodyParts.rightArm : bodyParts.leftArm;
+  arm.add(heldItemMesh);
+}
+
+// ==================== ФОН ====================
+function setBackground(preset, customColor) {
+  const colors = {
+    day: 0x87CEEB, sunset: 0xFFA07A, night: 0x191970,
+    nether: 0x5C1010, end: 0x1A0033,
+    green: 0x00FF00, blue: 0x0000FF
+  };
+  if (preset === 'custom') scene.background = new THREE.Color(customColor);
+  else scene.background = new THREE.Color(colors[preset] ?? 0x87CEEB);
+
+  if (preset === 'night' || preset === 'end') {
+    ambient.intensity = 0.3; sun.intensity = 0.4;
+    sun.color.setHex(0xffffff);
+  } else if (preset === 'nether') {
+    ambient.intensity = 0.5; sun.intensity = 0.9;
+    sun.color.setHex(0xFF6B3D);
+  } else {
+    ambient.intensity = 0.7; sun.intensity = 1.2;
+    sun.color.setHex(0xffffff);
+  }
+}
+
+// ==================== ПОЛ ====================
+let floorMesh = null;
+let floorSize = 20;
+function setFloor(type) {
+  if (floorMesh) {
+    scene.remove(floorMesh);
+    floorMesh.geometry.dispose();
+    floorMesh.material.dispose();
+    floorMesh = null;
+  }
+  if (type === 'none') return;
+  const colors = {
+    grass: 0x4CAF50, stone: 0x888888, sand: 0xE8D28A,
+    wood: 0x8B5A2B, netherrack: 0x7A2A2A, snow: 0xF0F8FF
+  };
+  const geo = new THREE.PlaneGeometry(floorSize, floorSize);
+  const mat = new THREE.MeshLambertMaterial({ color: colors[type] || 0x4CAF50 });
+  floorMesh = new THREE.Mesh(geo, mat);
+  floorMesh.rotation.x = -Math.PI / 2;
+  floorMesh.receiveShadow = true;
+  scene.add(floorMesh);
+}
+
+// ==================== МИР ====================
+let worldObjects = [];
+function addBlock(x, y, z, color = 0x8B5A2B, size = 1) {
+  const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(size, size, size),
+    new THREE.MeshLambertMaterial({ color })
+  );
+  mesh.position.set(x, y + size/2, z);
+  mesh.castShadow = true; mesh.receiveShadow = true;
+  scene.add(mesh); worldObjects.push(mesh);
+}
+function addTree(x, z) {
+  const trunk = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.5, 0.4),
+    new THREE.MeshLambertMaterial({ color: 0x6B4423 }));
+  trunk.position.set(x, 0.75, z);
+  trunk.castShadow = true; trunk.receiveShadow = true;
+  scene.add(trunk); worldObjects.push(trunk);
+
+  const leafMat = new THREE.MeshLambertMaterial({ color: 0x2E7D32 });
+  [[0,1.8,0,1.2],[0,2.4,0,1.0],[0,3.0,0,0.7]].forEach(([lx,ly,lz,s]) => {
+    const leaf = new THREE.Mesh(new THREE.BoxGeometry(s,s,s), leafMat);
+    leaf.position.set(x+lx, ly, z+lz);
+    leaf.castShadow = true;
+    scene.add(leaf); worldObjects.push(leaf);
+  });
+}
+function addHouse(x, z) {
+  for (let i = -1; i <= 1; i++) {
+    if (i !== 0) { addBlock(x+i, 0, z, 0xA0522D); addBlock(x+i, 1, z, 0xA0522D); }
+    else { addBlock(x+i, 1, z, 0xA0522D); }
+    addBlock(x+i, 0, z-1, 0xA0522D);
+    addBlock(x+i, 1, z-1, 0xA0522D);
+  }
+  const roofMat = new THREE.MeshLambertMaterial({ color: 0x8B0000 });
+  for (let i = -1; i <= 1; i++) {
+    for (let k = -1; k <= 0; k++) {
+      const roof = new THREE.Mesh(new THREE.BoxGeometry(1, 0.3, 1), roofMat);
+      roof.position.set(x+i, 2.15, z+k);
+      roof.castShadow = true;
+      scene.add(roof); worldObjects.push(roof);
+    }
+  }
+}
+function addStructure(x, z) {
+  const colors = [0xFFD700, 0xFFA500, 0xFF8C00];
+  for (let layer = 0; layer < 3; layer++) {
+    const size = 3 - layer;
+    for (let i = 0; i < size; i++)
+      for (let j = 0; j < size; j++)
+        addBlock(x + i - size/2 + 0.5, layer, z + j - size/2 + 0.5, colors[layer]);
+  }
+}
+function clearScene() {
+  worldObjects.forEach(o => { scene.remove(o); o.geometry?.dispose(); o.material?.dispose(); });
+  worldObjects = [];
+}
+
+// ==================== КОНСТРУКТОР АНИМАЦИЙ ====================
+let timelineFrames = 20;
+let currentFrame = 0;
+let keyframes = []; // [{frame, part, rot:{x,y,z}, pos:{x,y,z}}]
+let isPlayingCustom = false;
+let customPlayTime = 0;
+const CUSTOM_FPS = 20;
+
+// Части тела, доступные для анимации
+const animatableParts = ['head', 'rightArm', 'leftArm', 'rightLeg', 'leftLeg', 'body', 'root'];
+const partNames = {
+  head: 'Голова', rightArm: 'Пр. рука', leftArm: 'Лев. рука',
+  rightLeg: 'Пр. нога', leftLeg: 'Лев. нога', body: 'Тело', root: 'Корень (Y)'
+};
+
+function buildTimelineUI() {
+  const body = document.getElementById('timeline-body');
+  body.innerHTML = '';
+  animatableParts.forEach(part => {
+    const track = document.createElement('div');
+    track.className = 'keyframe-track';
+    const label = document.createElement('div');
+    label.className = 'track-label';
+    label.textContent = partNames[part];
+    track.appendChild(label);
+    const slots = document.createElement('div');
+    slots.className = 'track-slots';
+    for (let i = 0; i < timelineFrames; i++) {
+      const slot = document.createElement('div');
+      slot.className = 'keyframe-slot';
+      if (i === currentFrame) slot.classList.add('current');
+      const hasKey = keyframes.some(k => k.frame === i && k.part === part);
+      if (hasKey) slot.classList.add('has-keyframe');
+      slot.textContent = hasKey ? '●' : '';
+      slot.title = `Кадр ${i} — ${partNames[part]}`;
+      slot.onclick = () => {
+        if (i === currentFrame) {
+          // Тоггл ключа на текущем кадре
+          const idx = keyframes.findIndex(k => k.frame === i && k.part === part);
+          if (idx >= 0) {
+            keyframes.splice(idx, 1);
+          } else {
+            const obj = part === 'root' ? skinModel : bodyParts[part];
+            keyframes.push({
+              frame: i, part,
+              rot: obj ? { x: obj.rotation.x, y: obj.rotation.y, z: obj.rotation.z } : {x:0,y:0,z:0},
+              pos: obj ? { x: obj.position.x, y: obj.position.y, z: obj.position.z } : {x:0,y:0,z:0}
+            });
+          }
+          buildTimelineUI();
+          setStatus(`Ключ кадра ${i} для "${partNames[part]}"`);
+        } else {
+          setCurrentFrame(i);
+        }
+      };
+      slots.appendChild(slot);
+    }
+    track.appendChild(slots);
+    body.appendChild(track);
+  });
+  document.getElementById('frameCount').textContent = timelineFrames;
+  document.getElementById('tlSlider').max = timelineFrames - 1;
+  document.getElementById('tlFrameLabel').textContent = `${currentFrame}/${timelineFrames-1}`;
+  document.getElementById('tlSlider').value = currentFrame;
+}
+
+function setCurrentFrame(f) {
+  currentFrame = Math.max(0, Math.min(f, timelineFrames - 1));
+  buildTimelineUI();
+  applyCustomFrame(currentFrame);
+}
+
+function applyCustomFrame(frame) {
+  if (!skinModel) return;
+  // Для каждой части — найти ближайшие ключи до/после
+  animatableParts.forEach(part => {
+    const obj = part === 'root' ? skinModel : bodyParts[part];
+    if (!obj) return;
+    const keys = keyframes.filter(k => k.part === part).sort((a,b) => a.frame - b.frame);
+    if (keys.length === 0) return;
+
+    let before = keys[0], after = keys[keys.length-1];
+    for (let i = 0; i < keys.length; i++) {
+      if (keys[i].frame <= frame) before = keys[i];
+      if (keys[i].frame >= frame) { after = keys[i]; break; }
+    }
+    let t = 0;
+    if (after.frame !== before.frame) {
+      t = (frame - before.frame) / (after.frame - before.frame);
+    }
+    const lerp = (a, b, t) => a + (b - a) * t;
+    obj.rotation.x = lerp(before.rot.x, after.rot.x, t);
+    obj.rotation.y = lerp(before.rot.y, after.rot.y, t);
+    obj.rotation.z = lerp(before.rot.z, after.rot.z, t);
+    if (part === 'root') {
+      obj.position.x = lerp(before.pos.x, after.pos.x, t);
+      obj.position.y = lerp(before.pos.y, after.pos.y, t);
+      obj.position.z = lerp(before.pos.z, after.pos.z, t);
+    }
+  });
+}
+
+function saveCurrentPoseAsKeyframe() {
+  animatableParts.forEach(part => {
+    const idx = keyframes.findIndex(k => k.frame === currentFrame && k.part === part);
+    const obj = part === 'root' ? skinModel : bodyParts[part];
+    if (!obj) return;
+    const kf = {
+      frame: currentFrame, part,
+      rot: { x: obj.rotation.x, y: obj.rotation.y, z: obj.rotation.z },
+      pos: { x: obj.position.x, y: obj.position.y, z: obj.position.z }
+    };
+    if (idx >= 0) keyframes[idx] = kf;
+    else keyframes.push(kf);
+  });
+  buildTimelineUI();
+}
+
+// ==================== АНИМАЦИИ ====================
+let animationState = 'idle';
+let animTime = 0;
+let isPlaying = true;
+let animSpeed = 1;
+let controlMode = 'orbit';
+
+function updateAnimation(dt) {
+  if (!skinModel) return;
+
+  if (animationState === 'custom') {
+    if (isPlaying) {
+      customPlayTime += dt * animSpeed;
+      currentFrame = Math.floor((customPlayTime * CUSTOM_FPS) % timelineFrames);
+      document.getElementById('tlSlider').value = currentFrame;
+      document.getElementById('tlFrameLabel').textContent = `${currentFrame}/${timelineFrames-1}`;
+    }
+    applyCustomFrame(currentFrame);
+    return;
+  }
+
+  if (!isPlaying) return;
+  animTime += dt * animSpeed;
+  const t = animTime;
+
+  bodyParts.rightArm.rotation.set(0,0,0);
+  bodyParts.leftArm.rotation.set(0,0,0);
+  bodyParts.rightLeg.rotation.set(0,0,0);
+  bodyParts.leftLeg.rotation.set(0,0,0);
+  bodyParts.head.rotation.set(0,0,0);
+  skinModel.position.set(0,0,0);
+  skinModel.rotation.set(0,0,0);
+
+  switch(animationState) {
+    case 'idle':
+      bodyParts.rightArm.rotation.x = Math.sin(t*2)*0.05;
+      bodyParts.leftArm.rotation.x = -Math.sin(t*2)*0.05;
+      bodyParts.head.rotation.y = Math.sin(t*0.7)*0.2;
+      skinModel.position.y = Math.sin(t*2)*0.02;
+      break;
+    case 'walk':
+      bodyParts.rightArm.rotation.x = Math.sin(t*4)*0.7;
+      bodyParts.leftArm.rotation.x = -Math.sin(t*4)*0.7;
+      bodyParts.rightLeg.rotation.x = -Math.sin(t*4)*0.7;
+      bodyParts.leftLeg.rotation.x = Math.sin(t*4)*0.7;
+      skinModel.position.y = Math.abs(Math.sin(t*4))*0.05;
+      break;
+    case 'run':
+      bodyParts.rightArm.rotation.x = Math.sin(t*8)*1.2;
+      bodyParts.leftArm.rotation.x = -Math.sin(t*8)*1.2;
+      bodyParts.rightLeg.rotation.x = -Math.sin(t*8)*1.2;
+      bodyParts.leftLeg.rotation.x = Math.sin(t*8)*1.2;
+      bodyParts.head.rotation.x = 0.3;
+      skinModel.position.y = Math.abs(Math.sin(t*8))*0.08;
+      break;
+    case 'wave':
+      bodyParts.rightArm.rotation.z = Math.PI + Math.sin(t*6)*0.3;
+      bodyParts.rightArm.rotation.x = -0.3;
+      bodyParts.head.rotation.y = Math.sin(t*2)*0.3;
+      break;
+    case 'jump':
+      const j = Math.abs(Math.sin(t*3));
+      skinModel.position.y = j * 0.8;
+      bodyParts.rightArm.rotation.x = -j * 1.5;
+      bodyParts.leftArm.rotation.x = -j * 1.5;
+      bodyParts.rightLeg.rotation.x = j * 0.5;
+      bodyParts.leftLeg.rotation.x = j * 0.5;
+      break;
+    case 'dance':
+      skinModel.rotation.y = Math.sin(t*3)*0.5;
+      bodyParts.rightArm.rotation.z = Math.sin(t*4)*1.5 - 0.5;
+      bodyParts.leftArm.rotation.z = -Math.sin(t*4)*1.5 + 0.5;
+      bodyParts.rightLeg.rotation.x = Math.sin(t*6)*0.5;
+      bodyParts.leftLeg.rotation.x = -Math.sin(t*6)*0.5;
+      skinModel.position.y = Math.abs(Math.sin(t*6))*0.1;
+      break;
+    case 'spin':
+      skinModel.rotation.y = t * 2;
+      bodyParts.head.rotation.x = Math.sin(t*2)*0.1;
+      break;
+    case 'sword_swing':
+      const swing = (Math.sin(t*4) + 1) / 2;
+      bodyParts.rightArm.rotation.x = -swing * 2.2;
+      bodyParts.rightArm.rotation.z = -0.3 - swing * 0.5;
+      bodyParts.head.rotation.y = Math.sin(t*4)*0.2;
+      break;
+    case 'mace_smash':
+      const phase = (t * 2) % (Math.PI * 2);
+      if (phase < Math.PI) {
+        bodyParts.rightArm.rotation.x = -phase * 0.9;
+        bodyParts.rightArm.rotation.z = -0.5;
+      } else {
+        const down = (phase - Math.PI) / Math.PI;
+        bodyParts.rightArm.rotation.x = -Math.PI * 0.9 + down * 3;
+        bodyParts.rightArm.rotation.z = -0.5 + down * 0.3;
+      }
+      bodyParts.head.rotation.x = 0.1;
+      break;
+    case 'fishing':
+      const reel = Math.sin(t*1.5);
+      bodyParts.rightArm.rotation.x = -1.0 + reel * 0.3;
+      bodyParts.rightArm.rotation.z = -0.4;
+      bodyParts.head.rotation.x = 0.15;
+      break;
+    case 'throw_pearl':
+      const tp = (t * 1.5) % 2;
+      if (tp < 1) {
+        bodyParts.rightArm.rotation.x = -tp * 2.5;
+      } else {
+        bodyParts.rightArm.rotation.x = -2.5 + (tp - 1) * 2.5;
+      }
+      bodyParts.rightArm.rotation.z = -0.3;
+      break;
+  }
+}
+
+// ==================== УПРАВЛЕНИЕ: ТЕЛЕПОРТ ====================
+let teleportActive = false;
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+const teleportIndicator = document.getElementById('teleport-indicator');
+let teleportTarget = new THREE.Vector3();
+
+function updateTeleportIndicator(x, y) {
+  const rect = renderer.domElement.getBoundingClientRect();
+  const nx = ((x - rect.left) / rect.width) * 2 - 1;
+  const ny = -((y - rect.top) / rect.height) * 2 + 1;
+  mouse.set(nx, ny);
+  raycaster.setFromCamera(mouse, camera);
+  // Плоскость пола y=0 (или y=1.5 если пола нет)
+  const groundY = floorMesh ? 0 : 1.5;
+  const plane = new THREE.Plane(new THREE.Vector3(0,1,0), -groundY);
+  const intersect = new THREE.Vector3();
+  if (raycaster.ray.intersectPlane(plane, intersect)) {
+    teleportTarget.copy(intersect);
+    const screenPos = intersect.clone().project(camera);
+    const rect2 = renderer.domElement.getBoundingClientRect();
+    const px = (screenPos.x * 0.5 + 0.5) * rect2.width;
+    const py = (-screenPos.y * 0.5 + 0.5) * rect2.height;
+    teleportIndicator.style.left = px + 'px';
+    teleportIndicator.style.top = py + 'px';
+    teleportIndicator.classList.add('active');
+  }
+}
+
+function doTeleport(x, y) {
+  updateTeleportIndicator(x, y);
+  if (teleportTarget.length() > 0) {
+    // Плавный перенос цели камеры
+    const start = controls.target.clone();
+    const end = teleportTarget.clone();
+    end.y = 1.5;
+    const startTime = performance.now();
+    const duration = 400;
+    const animateTp = () => {
+      const e = Math.min((performance.now() - startTime) / duration, 1);
+      const k = 1 - Math.pow(1 - e, 3);
+      controls.target.lerpVectors(start, end, k);
+      const camOffset = camera.position.clone().sub(start);
+      camera.position.copy(end.clone().add(camOffset));
+      if (e < 1) requestAnimationFrame(animateTp);
+    };
+    animateTp();
+    setStatus(`🎯 Телепорт в (${end.x.toFixed(1)}, ${end.z.toFixed(1)})`);
+  }
+  teleportIndicator.classList.remove('active');
+}
+
+renderer.domElement.addEventListener('pointerdown', (e) => {
+  if (controlMode === 'teleport') {
+    teleportActive = true;
+    updateTeleportIndicator(e.clientX, e.clientY);
+  }
+});
+renderer.domElement.addEventListener('pointermove', (e) => {
+  if (controlMode === 'teleport' && teleportActive) {
+    updateTeleportIndicator(e.clientX, e.clientY);
+  }
+});
+renderer.domElement.addEventListener('pointerup', (e) => {
+  if (controlMode === 'teleport' && teleportActive) {
+    doTeleport(e.clientX, e.clientY);
+    teleportActive = false;
+  }
+});
+
+// ==================== UI ====================
+const statusEl = document.getElementById('status');
+function setStatus(m) { statusEl.textContent = m; }
+
+// Скины
+document.getElementById('skinInput').addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      if (img.width !== 64 || img.height !== 64) setStatus('⚠️ Не 64×64, может быть смещение');
+      const tex = new THREE.Texture(img);
+      tex.magFilter = THREE.NearestFilter;
+      tex.minFilter = THREE.NearestFilter;
+      tex.needsUpdate = true;
+      buildSkinModel(tex);
+      setStatus('✅ Скин загружен');
+    };
+    img.src = ev.target.result;
+  };
+  r.readAsDataURL(f);
+});
+document.getElementById('loadSkin').addEventListener('click', () => {
+  const n = document.getElementById('username').value.trim();
+  if (!n) { setStatus('❌ Введите имя'); return; }
+  setStatus('⏳ Загрузка...');
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    const tex = new THREE.Texture(img);
+    tex.magFilter = THREE.NearestFilter;
+    tex.minFilter = THREE.NearestFilter;
+    tex.needsUpdate = true;
+    buildSkinModel(tex);
+    setStatus(`✅ Скин "${n}" загружен`);
+  };
+  img.onerror = () => setStatus('❌ Ошибка загрузки');
+  img.src = `https://mc-heads.net/skin/${encodeURIComponent(n)}`;
+});
+
+// Предметы
+document.querySelectorAll('.item-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.item-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentItem = btn.dataset.item;
+    updateHeldItem();
+    setStatus(`Предмет: ${btn.textContent}`);
+  };
+});
+document.getElementById('handSelect').onchange = e => {
+  currentHand = e.target.value;
+  updateHeldItem();
+};
+
+// Анимация
+document.getElementById('animSelect').onchange = e => {
+  animationState = e.target.value;
+  animTime = 0; customPlayTime = 0;
+  if (animationState === 'custom') {
+    document.getElementById('timeline').classList.remove('hidden');
+    setStatus('🎬 Свой режим анимации');
+  }
+};
+document.getElementById('playBtn').onclick = () => { isPlaying = true; setStatus('▶'); };
+document.getElementById('pauseBtn').onclick = () => { isPlaying = false; setStatus('⏸'); };
+document.getElementById('speedRange').oninput = e => { animSpeed = parseFloat(e.target.value); };
+
+// Фон
+document.getElementById('bgColor').oninput = e => {
+  document.getElementById('bgPreset').value = 'custom';
+  setBackground('custom', e.target.value);
+};
+document.getElementById('bgHue').oninput = e => {
+  const h = e.target.value;
+  const c = new THREE.Color().setHSL(h/360, 0.7, 0.6);
+  document.getElementById('bgPreset').value = 'custom';
+  document.getElementById('bgColor').value = '#' + c.getHexString();
+  setBackground('custom', c);
+};
+document.getElementById('bgPreset').onchange = e => {
+  setBackground(e.target.value, document.getElementById('bgColor').value);
+};
+
+// Пол
+document.getElementById('floorType').onchange = e => setFloor(e.target.value);
+document.getElementById('floorLess').onclick = () => { floorSize = Math.max(4, floorSize - 4); setFloor(document.getElementById('floorType').value); };
+document.getElementById('floorMore').onclick = () => { floorSize = Math.min(60, floorSize + 4); setFloor(document.getElementById('floorType').value); };
+
+// Мир
+document.getElementById('addTree').onclick = () => { addTree((Math.random()-0.5)*6, (Math.random()-0.5)*6); setStatus('🌳'); };
+document.getElementById('addBlock').onclick = () => {
+  const c = [0x8B5A2B,0x888888,0xA0522D,0xFFD700][Math.floor(Math.random()*4)];
+  addBlock((Math.random()-0.5)*6, 0, (Math.random()-0.5)*6, c);
+  setStatus('🧱');
+};
+document.getElementById('addHouse').onclick = () => { addHouse(3, -3); setStatus('🏠'); };
+document.getElementById('addStruct').onclick = () => { addStructure(-4, -4); setStatus('🏛️'); };
+document.getElementById('clearScene').onclick = () => { clearScene(); setStatus('🗑️ Очищено'); };
+
+// Управление
+document.getElementById('controlMode').onchange = e => {
+  controlMode = e.target.value;
+  if (controlMode === 'orbit') {
+    controls.enabled = true;
+    controls.enablePan = true;
+    setStatus('🖱️ Орбита');
+  } else if (controlMode === 'teleport') {
+    controls.enabled = false;
+    setStatus('🎯 Телепорт: тапни по сцене');
+  } else if (controlMode === 'follow') {
+    controls.enabled = true;
+    controls.enablePan = false;
+    setStatus('📷 Следит за игроком');
+  }
+};
+
+// Скриншот
+document.getElementById('screenshotBtn').onclick = () => {
+  renderer.render(scene, camera);
+  const url = renderer.domElement.toDataURL('image/png');
+  const a = document.createElement('a');
+  a.download = `skin-${Date.now()}.png`;
+  a.href = url;
+  a.click();
+  setStatus('📸 Сохранено');
+};
+
+// Запись
+let mediaRecorder = null, chunks = [];
+document.getElementById('recordBtn').onclick = () => {
+  const stream = renderer.domElement.captureStream(30);
+  const fmt = document.getElementById('recordFormat').value;
+  const options = fmt === 'mp4'
+    ? { mimeType: 'video/mp4;codecs=h264' }
+    : { mimeType: 'video/webm;codecs=vp9' };
+  if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+    options.mimeType = 'video/webm';
+    setStatus('⚠️ Формат заменён на WebM');
+  }
+  mediaRecorder = new MediaRecorder(stream, options);
+  chunks = [];
+  mediaRecorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+  mediaRecorder.onstop = () => {
+    const ext = options.mimeType.includes('mp4') ? 'mp4' : 'webm';
+    const blob = new Blob(chunks, { type: options.mimeType.split(';')[0] });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.download = `anim-${Date.now()}.${ext}`;
+    a.href = url;
+    a.click();
+    setStatus('🎥 Сохранено');
+  };
+  mediaRecorder.start();
+  isPlaying = true;
+  document.getElementById('recordBtn').style.display = 'none';
+  document.getElementById('stopRecordBtn').style.display = 'block';
+  setStatus('🔴 Запись...');
+};
+document.getElementById('stopRecordBtn').onclick = () => {
+  if (mediaRecorder?.state !== 'inactive') mediaRecorder.stop();
+  document.getElementById('recordBtn').style.display = 'block';
+  document.getElementById('stopRecordBtn').style.display = 'none';
+};
+
+// Таймлайн
+document.getElementById('toggleTimelineBtn').onclick = () => {
+  document.getElementById('timeline').classList.toggle('hidden');
+};
+document.getElementById('toggleTimeline').onclick = () => {
+  document.getElementById('timeline').classList.toggle('hidden');
+};
+document.getElementById('tlPrev').onclick = () => setCurrentFrame(currentFrame - 1);
+document.getElementById('tlNext').onclick = () => setCurrentFrame(currentFrame + 1);
+document.getElementById('tlPlay').onclick = () => {
+  document.getElementById('animSelect').value = 'custom';
+  animationState = 'custom';
+  isPlaying = !isPlaying;
+  document.getElementById('tlPlay').textContent = isPlaying ? '⏸' : '▶';
+};
+document.getElementById('tlAddFrame').onclick = () => {
+  if (timelineFrames < 60) { timelineFrames++; buildTimelineUI(); }
+};
+document.getElementById('tlRemoveFrame').onclick = () => {
+  if (timelineFrames > 2) { timelineFrames--; buildTimelineUI(); }
+};
+document.getElementById('tlClear').onclick = () => {
+  keyframes = []; buildTimelineUI(); setStatus('🗑 Ключи очищены');
+};
+document.getElementById('tlSlider').oninput = e => setCurrentFrame(parseInt(e.target.value));
+
+// Сохранение/загрузка анимации
+document.getElementById('saveAnimBtn').onclick = () => {
+  saveCurrentPoseAsKeyframe();
+  const data = {
+    name: document.getElementById('animName').value,
+    frames: timelineFrames,
+    keyframes
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${data.name || 'animation'}.json`;
+  a.click();
+  setStatus('💾 Анимация сохранена');
+};
+document.getElementById('loadAnimBtn').onclick = () => {
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = 'application/json';
+  inp.onchange = e => {
+    const f = e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        timelineFrames = data.frames || 20;
+        keyframes = data.keyframes || [];
+        document.getElementById('animName').value = data.name || 'Без имени';
+        document.getElementById('currentAnimName').textContent = data.name || 'Без имени';
+        document.getElementById('animSelect').value = 'custom';
+        animationState = 'custom';
+        buildTimelineUI();
+        setStatus('📂 Анимация загружена');
+      } catch(err) {
+        setStatus('❌ Ошибка файла');
+      }
+    };
+    r.readAsText(f);
+  };
+  inp.click();
+};
+document.getElementById('newAnimBtn').onclick = () => {
+  if (confirm('Создать новую анимацию? Текущие ключи будут удалены.')) {
+    keyframes = [];
+    timelineFrames = 20;
+    currentFrame = 0;
+    document.getElementById('animName').value = 'Моя анимация';
+    document.getElementById('currentAnimName').textContent = 'Моя анимация';
+    buildTimelineUI();
+    document.getElementById('timeline').classList.remove('hidden');
+    animationState = 'custom';
+    document.getElementById('animSelect').value = 'custom';
+    setStatus('➕ Новая анимация');
+  }
+};
+
+// Мобильное меню
+document.getElementById('menuToggle').onclick = () => {
+  document.getElementById('sidebar').classList.toggle('open');
+};
+
+// Сворачивание секций
+document.querySelectorAll('#sidebar h2').forEach(h => {
+  const section = h.nextElementSibling;
+  if (section) {
+    section.style.maxHeight = section.scrollHeight + 'px';
+    h.onclick = () => {
+      h.classList.toggle('collapsed');
+      section.classList.toggle('collapsed');
+    };
+  }
+});
+
+// ==================== РЕНДЕР ====================
+let last = performance.now();
+function animate() {
+  requestAnimationFrame(animate);
+  const now = performance.now();
+  const dt = Math.min((now - last)/1000, 0.1);
+  last = now;
+
+  if (controlMode !== 'teleport') controls.update();
+
+  // Follow mode
+  if (controlMode === 'follow' && skinModel) {
+    const target = new THREE.Vector3(0, 1.5, 0);
+    controls.target.lerp(target, 0.05);
+  }
+
+  updateAnimation(dt);
+  renderer.render(scene, camera);
+}
+
+window.addEventListener('resize', () => {
+  camera.aspect = container.clientWidth / container.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(container.clientWidth, container.clientHeight);
+});
+
+// ==================== СТАРТ ====================
+setFloor('grass');
+buildSkinModel(createDefaultSkin());
+buildTimelineUI();
+document.querySelector('.item-btn[data-item="none"]').classList.add('active');
+animate();
+setStatus('✅ Готово!');
+</script>
+</body>
+        </html>
