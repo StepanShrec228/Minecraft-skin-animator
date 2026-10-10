@@ -3,12 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Minecraft Skin Animator PRO 2.1</title>
+<title>Minecraft Skin Animator PRO 2.2</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body { font-family: 'Segoe UI', sans-serif; background: #1a1a1a; color: #fff; display: flex; height: 100vh; overflow: hidden; }
   #sidebar { width: 310px; background: #2a2a2a; padding: 12px; overflow-y: auto; border-right: 2px solid #444; transition: transform 0.3s; flex-shrink: 0; }
-  #sidebar.hidden { transform: translateX(-100%); position: absolute; z-index: 100; height: 100%; }
   #sidebar h1 { font-size: 16px; color: #4CAF50; text-align: center; margin-bottom: 8px; }
   #sidebar h2 { font-size: 13px; margin: 12px 0 6px; color: #4CAF50; border-bottom: 1px solid #444; padding-bottom: 4px; cursor: pointer; user-select: none; }
   #sidebar h2::before { content: '▼ '; font-size: 10px; }
@@ -158,7 +157,7 @@
 <body>
 
 <div id="sidebar">
-  <h1>🎮 Skin Animator 2.1</h1>
+  <h1>🎮 Skin Animator 2.2</h1>
 
   <h2>1. Скин</h2>
   <div class="section">
@@ -361,6 +360,12 @@
       <button class="blue" id="applyAndKey">✓ Ключ</button>
       <button class="secondary" id="resetPart">↺ Сброс</button>
     </div>
+    <div class="btn-row" style="margin-top:4px;">
+      <button class="orange" id="mirrorPart" style="width:100%;">↔️ Отзеркалить часть</button>
+    </div>
+    <div class="hint" style="font-size:9px;">
+      Зеркалит UV-развёртку боковых граней. Если часть выглядит "наоборот" — жми.
+    </div>
   </div>
 
   <div id="timeline" class="hidden">
@@ -394,7 +399,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-// ==================== ТЕКСТУРЫ ПРЕДМЕТОВ ====================
+// ==================== ТЕКСТУРЫ ====================
 const textureCache = {};
 
 function createPixelTexture(drawFn, size = 16) {
@@ -674,7 +679,7 @@ function texStick() {
   return textureCache.stick;
 }
 
-// ==================== РЕЕСТР ПРЕДМЕТОВ ====================
+// ==================== ПРЕДМЕТЫ ====================
 const ITEMS = {
   none: { name: 'Нет', cat: 'misc', icon: '🚫', type: 'none' },
   sword_wood: { name: 'Дерев. меч', cat: 'swords', tex: () => texSword('#8B5A2B'), type: 'flat' },
@@ -765,13 +770,23 @@ let skinModel = null;
 let bodyParts = {};
 let heldItemMesh = null;
 
+// Состояние зеркалирования UV для каждой части
+// { 0: правая грань зеркалится?, 1: левая грань зеркалится? }
+const mirrorState = {
+  head:     { 0: true,  1: false },
+  body:     { 0: true,  1: false },
+  rightArm: { 0: false, 1: true  },
+  leftArm:  { 0: true,  1: false },
+  rightLeg: { 0: false, 1: true  },
+  leftLeg:  { 0: true,  1: false }
+};
+
 function createDefaultSkin() {
   const c = document.createElement('canvas');
   c.width = 64; c.height = 64;
   const ctx = c.getContext('2d');
   ctx.imageSmoothingEnabled = false;
   ctx.clearRect(0, 0, 64, 64);
-  // Голова
   ctx.fillStyle = '#3A2418'; ctx.fillRect(8, 0, 8, 8);
   ctx.fillStyle = '#B88A62'; ctx.fillRect(16, 0, 8, 8);
   ctx.fillStyle = '#B88A62'; ctx.fillRect(0, 8, 8, 8);
@@ -785,34 +800,29 @@ function createDefaultSkin() {
   ctx.fillStyle = '#3A2418'; ctx.fillRect(16, 8, 8, 3);
   ctx.fillStyle = '#B88A62'; ctx.fillRect(24, 8, 8, 8);
   ctx.fillStyle = '#3A2418'; ctx.fillRect(24, 8, 8, 3);
-  // Тело
   ctx.fillStyle = '#3A2418'; ctx.fillRect(20, 16, 8, 4);
   ctx.fillStyle = '#2E4A8C'; ctx.fillRect(28, 16, 8, 4);
   ctx.fillStyle = '#00A0FF'; ctx.fillRect(16, 20, 4, 12); ctx.fillRect(20, 20, 8, 12);
   ctx.fillStyle = '#0080CC'; ctx.fillRect(20, 27, 8, 1);
   ctx.fillStyle = '#00A0FF'; ctx.fillRect(28, 20, 4, 12); ctx.fillRect(32, 20, 8, 12);
-  // Правая рука
   ctx.fillStyle = '#00A0FF'; ctx.fillRect(44, 16, 4, 4);
   ctx.fillStyle = '#B88A62'; ctx.fillRect(48, 16, 4, 4);
   ctx.fillStyle = '#00A0FF'; ctx.fillRect(40, 20, 4, 6); ctx.fillStyle = '#B88A62'; ctx.fillRect(40, 26, 4, 6);
   ctx.fillStyle = '#00A0FF'; ctx.fillRect(44, 20, 4, 6); ctx.fillStyle = '#B88A62'; ctx.fillRect(44, 26, 4, 6);
   ctx.fillStyle = '#00A0FF'; ctx.fillRect(48, 20, 4, 6); ctx.fillStyle = '#B88A62'; ctx.fillRect(48, 26, 4, 6);
   ctx.fillStyle = '#00A0FF'; ctx.fillRect(52, 20, 4, 6); ctx.fillStyle = '#B88A62'; ctx.fillRect(52, 26, 4, 6);
-  // Левая рука
   ctx.fillStyle = '#00A0FF'; ctx.fillRect(36, 48, 4, 4);
   ctx.fillStyle = '#B88A62'; ctx.fillRect(40, 48, 4, 4);
   ctx.fillStyle = '#00A0FF'; ctx.fillRect(32, 52, 4, 6); ctx.fillStyle = '#B88A62'; ctx.fillRect(32, 58, 4, 6);
   ctx.fillStyle = '#00A0FF'; ctx.fillRect(36, 52, 4, 6); ctx.fillStyle = '#B88A62'; ctx.fillRect(36, 58, 4, 6);
   ctx.fillStyle = '#00A0FF'; ctx.fillRect(40, 52, 4, 6); ctx.fillStyle = '#B88A62'; ctx.fillRect(40, 58, 4, 6);
   ctx.fillStyle = '#00A0FF'; ctx.fillRect(44, 52, 4, 6); ctx.fillStyle = '#B88A62'; ctx.fillRect(44, 58, 4, 6);
-  // Правая нога
   ctx.fillStyle = '#2E4A8C'; ctx.fillRect(4, 16, 4, 4);
   ctx.fillStyle = '#1A1A1A'; ctx.fillRect(8, 16, 4, 4);
   ctx.fillStyle = '#2E4A8C'; ctx.fillRect(0, 20, 4, 9); ctx.fillStyle = '#1A1A1A'; ctx.fillRect(0, 29, 4, 3);
   ctx.fillStyle = '#2E4A8C'; ctx.fillRect(4, 20, 4, 9); ctx.fillStyle = '#1A1A1A'; ctx.fillRect(4, 29, 4, 3);
   ctx.fillStyle = '#2E4A8C'; ctx.fillRect(8, 20, 4, 9); ctx.fillStyle = '#1A1A1A'; ctx.fillRect(8, 29, 4, 3);
   ctx.fillStyle = '#2E4A8C'; ctx.fillRect(12, 20, 4, 9); ctx.fillStyle = '#1A1A1A'; ctx.fillRect(12, 29, 4, 3);
-  // Левая нога
   ctx.fillStyle = '#2E4A8C'; ctx.fillRect(20, 48, 4, 4);
   ctx.fillStyle = '#1A1A1A'; ctx.fillRect(24, 48, 4, 4);
   ctx.fillStyle = '#2E4A8C'; ctx.fillRect(16, 52, 4, 9); ctx.fillStyle = '#1A1A1A'; ctx.fillRect(16, 61, 4, 3);
@@ -827,44 +837,48 @@ function createDefaultSkin() {
   return tex;
 }
 
-// ========= ФУНКЦИЯ С ФИКСОМ ЗЕРКАЛИРОВАНИЯ =========
-function makeBodyPart(w, h, d, tex, uv, mirrorFaces = {}) {
-  const geo = new THREE.BoxGeometry(w, h, d);
-  if (uv) {
-    const uvs = geo.attributes.uv.array;
-    // Порядок граней: 0=+X(правая), 1=-X(левая), 2=+Y(верх), 3=-Y(низ), 4=+Z(перед), 5=-Z(зад)
-    const setFace = (i, x, y, w, h, mirror) => {
-      const u0 = x / 64;
-      const v1 = 1 - y / 64;
-      const u1 = (x + w) / 64;
-      const v0 = 1 - (y + h) / 64;
-      const o = i * 8;
-      if (mirror) {
-        uvs[o + 0] = u1; uvs[o + 1] = v1;
-        uvs[o + 2] = u0; uvs[o + 3] = v1;
-        uvs[o + 4] = u1; uvs[o + 5] = v0;
-        uvs[o + 6] = u0; uvs[o + 7] = v0;
-      } else {
-        uvs[o + 0] = u0; uvs[o + 1] = v1;
-        uvs[o + 2] = u1; uvs[o + 3] = v1;
-        uvs[o + 4] = u0; uvs[o + 5] = v0;
-        uvs[o + 6] = u1; uvs[o + 7] = v0;
-      }
-    };
-    setFace(0, uv.right[0], uv.right[1], uv.right[2], uv.right[3], mirrorFaces[0]);
-    setFace(1, uv.left[0], uv.left[1], uv.left[2], uv.left[3], mirrorFaces[1]);
-    setFace(2, uv.top[0], uv.top[1], uv.top[2], uv.top[3], mirrorFaces[2]);
-    setFace(3, uv.bottom[0], uv.bottom[1], uv.bottom[2], uv.bottom[3], mirrorFaces[3]);
-    setFace(4, uv.front[0], uv.front[1], uv.front[2], uv.front[3], mirrorFaces[4]);
-    setFace(5, uv.back[0], uv.back[1], uv.back[2], uv.back[3], mirrorFaces[5]);
-    geo.attributes.uv.needsUpdate = true;
+function setFaceUV(uvs, i, x, y, w, h, mirror) {
+  const u0 = x / 64;
+  const v1 = 1 - y / 64;
+  const u1 = (x + w) / 64;
+  const v0 = 1 - (y + h) / 64;
+  const o = i * 8;
+  if (mirror) {
+    uvs[o + 0] = u1; uvs[o + 1] = v1;
+    uvs[o + 2] = u0; uvs[o + 3] = v1;
+    uvs[o + 4] = u1; uvs[o + 5] = v0;
+    uvs[o + 6] = u0; uvs[o + 7] = v0;
+  } else {
+    uvs[o + 0] = u0; uvs[o + 1] = v1;
+    uvs[o + 2] = u1; uvs[o + 3] = v1;
+    uvs[o + 4] = u0; uvs[o + 5] = v0;
+    uvs[o + 6] = u1; uvs[o + 7] = v0;
   }
+}
+
+function applyUVToMesh(mesh, uv, mirror) {
+  const uvs = mesh.geometry.attributes.uv.array;
+  setFaceUV(uvs, 0, uv.right[0],  uv.right[1],  uv.right[2],  uv.right[3],  mirror[0]);
+  setFaceUV(uvs, 1, uv.left[0],   uv.left[1],   uv.left[2],   uv.left[3],   mirror[1]);
+  setFaceUV(uvs, 2, uv.top[0],    uv.top[1],    uv.top[2],    uv.top[3],    mirror[2]);
+  setFaceUV(uvs, 3, uv.bottom[0], uv.bottom[1], uv.bottom[2], uv.bottom[3], mirror[3]);
+  setFaceUV(uvs, 4, uv.front[0],  uv.front[1],  uv.front[2],  uv.front[3],  mirror[4]);
+  setFaceUV(uvs, 5, uv.back[0],   uv.back[1],   uv.back[2],   uv.back[3],   mirror[5]);
+  mesh.geometry.attributes.uv.needsUpdate = true;
+}
+
+function makeBodyPart(w, h, d, tex, uv, partName) {
+  const geo = new THREE.BoxGeometry(w, h, d);
+  const mirror = mirrorState[partName] || {};
+  applyUVToMesh({ geometry: geo }, uv, mirror);
   const mat = new THREE.MeshLambertMaterial({
     map: tex, transparent: true, alphaTest: 0.5, side: THREE.FrontSide
   });
   const mesh = new THREE.Mesh(geo, mat);
   mesh.castShadow = true;
   mesh.receiveShadow = true;
+  mesh.userData.uvConfig = uv;
+  mesh.userData.partName = partName;
   return mesh;
 }
 
@@ -875,58 +889,52 @@ function buildSkinModel(tex) {
   }
   const g = new THREE.Group();
 
-  // ГОЛОВА — зеркалим правую и левую грани
   const head = makeBodyPart(0.5, 0.5, 0.5, tex, {
     right:[0,8,8,8], left:[16,8,8,8], top:[8,0,8,8],
     bottom:[16,0,8,8], front:[8,8,8,8], back:[24,8,8,8]
-  }, { 0: true, 1: false });
+  }, 'head');
   const headPivot = new THREE.Group();
   headPivot.position.set(0, 1.25, 0);
   head.position.set(0, 0.25, 0);
   headPivot.add(head);
 
-  // ТЕЛО — зеркалим правую грань
   const body = makeBodyPart(0.5, 0.75, 0.25, tex, {
     right:[16,20,4,12], left:[28,20,4,12], top:[20,16,8,4],
     bottom:[28,16,8,4], front:[20,20,8,12], back:[32,20,8,12]
-  }, { 0: true, 1: false });
+  }, 'body');
   body.position.set(0, 0.875, 0);
 
-  // ПРАВАЯ РУКА — зеркалим левую грань
   const rightArm = makeBodyPart(0.25, 0.75, 0.25, tex, {
     right:[40,20,4,12], left:[48,20,4,12], top:[44,16,4,4],
     bottom:[48,16,4,4], front:[44,20,4,12], back:[52,20,4,12]
-  }, { 0: false, 1: true });
+  }, 'rightArm');
   const rightArmPivot = new THREE.Group();
   rightArmPivot.position.set(-0.375, 1.25, 0);
   rightArm.position.set(0, -0.375, 0);
   rightArmPivot.add(rightArm);
 
-  // ЛЕВАЯ РУКА — зеркалим правую грань
   const leftArm = makeBodyPart(0.25, 0.75, 0.25, tex, {
     right:[32,52,4,12], left:[40,52,4,12], top:[36,48,4,4],
     bottom:[40,48,4,4], front:[36,52,4,12], back:[44,52,4,12]
-  }, { 0: true, 1: false });
+  }, 'leftArm');
   const leftArmPivot = new THREE.Group();
   leftArmPivot.position.set(0.375, 1.25, 0);
   leftArm.position.set(0, -0.375, 0);
   leftArmPivot.add(leftArm);
 
-  // ПРАВАЯ НОГА — зеркалим левую грань
   const rightLeg = makeBodyPart(0.25, 0.75, 0.25, tex, {
     right:[0,20,4,12], left:[8,20,4,12], top:[4,16,4,4],
     bottom:[8,16,4,4], front:[4,20,4,12], back:[12,20,4,12]
-  }, { 0: false, 1: true });
+  }, 'rightLeg');
   const rightLegPivot = new THREE.Group();
   rightLegPivot.position.set(-0.125, 0.5, 0);
   rightLeg.position.set(0, -0.375, 0);
   rightLegPivot.add(rightLeg);
 
-  // ЛЕВАЯ НОГА — зеркалим правую грань
   const leftLeg = makeBodyPart(0.25, 0.75, 0.25, tex, {
     right:[16,52,4,12], left:[24,52,4,12], top:[20,48,4,4],
     bottom:[24,48,4,4], front:[20,52,4,12], back:[28,52,4,12]
-  }, { 0: true, 1: false });
+  }, 'leftLeg');
   const leftLegPivot = new THREE.Group();
   leftLegPivot.position.set(0.125, 0.5, 0);
   leftLeg.position.set(0, -0.375, 0);
@@ -1516,6 +1524,19 @@ function getPartObject(part) {
   return bodyParts[part] || null;
 }
 
+function getPartMesh(part) {
+  const obj = getPartObject(part);
+  if (!obj) return null;
+  if (part === 'root') return null;
+  // Ищем меш внутри pivot-группы
+  for (const child of obj.children) {
+    if (child.isMesh && child.userData.partName === part) return child;
+  }
+  // Если body — сам меш
+  if (obj.isMesh && obj.userData.partName === part) return obj;
+  return null;
+}
+
 function updateSlidersFromPart() {
   const obj = getPartObject(selectedPart);
   if (!obj) return;
@@ -1758,6 +1779,22 @@ function updateAnimation(dt) {
       break;
     }
   }
+}
+
+// ==================== ЗЕРКАЛИРОВАНИЕ ЧАСТИ ====================
+function mirrorPartUV(partName) {
+  if (partName === 'root') return false;
+  const mesh = getPartMesh(partName);
+  if (!mesh || !mesh.userData.uvConfig) return false;
+  const m = mirrorState[partName];
+  if (!m) return false;
+
+  // Переключаем зеркало правой и левой граней
+  m[0] = !m[0];
+  m[1] = !m[1];
+
+  applyUVToMesh(mesh, mesh.userData.uvConfig, m);
+  return true;
 }
 
 // ==================== РЕЖИМЫ ====================
@@ -2056,6 +2093,20 @@ document.getElementById('resetPart').onclick = () => {
   document.getElementById('rotZVal').textContent = '0°';
 };
 
+// Кнопка "Отзеркалить часть"
+document.getElementById('mirrorPart').onclick = () => {
+  if (selectedPart === 'root') {
+    setStatus('❌ Корень зеркалить нельзя');
+    return;
+  }
+  const ok = mirrorPartUV(selectedPart);
+  if (ok) {
+    setStatus(`↔️ ${partNames[selectedPart]} отзеркалена`);
+  } else {
+    setStatus(`❌ Не удалось отзеркалить`);
+  }
+};
+
 document.getElementById('toggleTimelineBtn').onclick = () => {
   document.getElementById('timeline').classList.toggle('hidden');
 };
@@ -2165,7 +2216,7 @@ buildSkinModel(createDefaultSkin());
 buildTimelineUI();
 document.querySelector('#partButtons button[data-part="head"]').classList.add('active');
 animate();
-setStatus('✅ Готово! Версия 2.1');
+setStatus('✅ Готово! Версия 2.2');
 </script>
 </body>
-</html>
+ </html>
