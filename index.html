@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Minecraft Skin Animator PRO 2.0</title>
+<title>Minecraft Skin Animator PRO 2.1</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body { font-family: 'Segoe UI', sans-serif; background: #1a1a1a; color: #fff; display: flex; height: 100vh; overflow: hidden; }
@@ -158,7 +158,7 @@
 <body>
 
 <div id="sidebar">
-  <h1>🎮 Skin Animator 2.0</h1>
+  <h1>🎮 Skin Animator 2.1</h1>
 
   <h2>1. Скин</h2>
   <div class="section">
@@ -187,7 +187,7 @@
       <option value="right">Правая</option>
       <option value="left">Левая</option>
     </select>
-    <div class="hint">Клик по предмету — взять в руку. Текстуры как в игре.</div>
+    <div class="hint">Клик по предмету — взять в руку.</div>
   </div>
 
   <h2>3. Локация</h2>
@@ -207,7 +207,6 @@
     <button class="orange" id="regenerateLoc" style="margin-top:6px;">🔄 Сгенерировать заново</button>
     <label>Деревьев / кустов</label>
     <input type="range" id="locDensity" min="0" max="30" value="10">
-    <div class="hint">Каждая генерация уникальна</div>
   </div>
 
   <h2>4. Строительство</h2>
@@ -235,7 +234,7 @@
     </select>
     <button class="orange" id="toggleBuild">🧱 Включить режим строительства</button>
     <div class="hint">
-      Тап по сцене — поставить блок в эту точку.<br>
+      Тап по сцене — поставить блок.<br>
       Долгое нажатие на блок — удалить.
     </div>
     <button class="danger" id="clearBuild" style="margin-top:6px;">🗑️ Удалить все блоки</button>
@@ -294,7 +293,6 @@
       <option value="teleport">🎯 Телепорт</option>
       <option value="follow">📷 Следит за игроком</option>
     </select>
-    <div class="hint">Тап по сцене — в режиме строительства ставит блок, в телепорте — телепорт</div>
   </div>
 
   <h2>8. Экспорт</h2>
@@ -396,8 +394,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-// ==================== ТЕКСТУРЫ ПРЕДМЕТОВ (2D PIXEL-ART как в Minecraft) ====================
-// Рисуем текстуры 16x16 на canvas
+// ==================== ТЕКСТУРЫ ПРЕДМЕТОВ ====================
 const textureCache = {};
 
 function createPixelTexture(drawFn, size = 16) {
@@ -414,21 +411,15 @@ function createPixelTexture(drawFn, size = 16) {
   return tex;
 }
 
-// ===== МЕЧИ =====
-function drawSword(ctx, bladeColor, guardColor, handleColor = '#5A3A1A') {
-  // 16x16, меч по диагонали
+function drawSword(ctx, bladeColor, guardColor = '#8B5A2B', handleColor = '#5A3A1A') {
   ctx.clearRect(0,0,16,16);
-  // Лезвие (диагональ)
   ctx.fillStyle = bladeColor;
   for (let i = 0; i < 10; i++) ctx.fillRect(5+i, 12-i, 2, 1);
-  // Обводка лезвия (тень)
   ctx.fillStyle = '#00000044';
   for (let i = 0; i < 10; i++) ctx.fillRect(5+i, 13-i, 1, 1);
-  // Гарда
   ctx.fillStyle = guardColor;
   ctx.fillRect(4, 11, 4, 2);
   ctx.fillRect(6, 9, 2, 4);
-  // Рукоять
   ctx.fillStyle = handleColor;
   ctx.fillRect(3, 14, 3, 1);
   ctx.fillRect(2, 15, 3, 1);
@@ -436,43 +427,34 @@ function drawSword(ctx, bladeColor, guardColor, handleColor = '#5A3A1A') {
 function texSword(color) {
   const key = 'sword_' + color;
   if (textureCache[key]) return textureCache[key];
-  textureCache[key] = createPixelTexture((ctx) => drawSword(ctx, color, '#8B5A2B'));
+  textureCache[key] = createPixelTexture((ctx) => drawSword(ctx, color));
   return textureCache[key];
 }
-
-// ===== ТОПОР =====
 function texAxe(color) {
   const key = 'axe_' + color;
   if (textureCache[key]) return textureCache[key];
   textureCache[key] = createPixelTexture((ctx) => {
     ctx.clearRect(0,0,16,16);
     ctx.fillStyle = '#8B5A2B';
-    for (let i = 0; i < 10; i++) ctx.fillRect(5+i, 15-i, 1, 1); // ручка
-    // Лезвие
+    for (let i = 0; i < 10; i++) ctx.fillRect(5+i, 15-i, 1, 1);
     ctx.fillStyle = color;
     ctx.fillRect(9, 2, 6, 5);
     ctx.fillRect(8, 3, 1, 3);
-    // Тень
     ctx.fillStyle = '#00000066';
     ctx.fillRect(9, 6, 6, 1);
     ctx.fillRect(14, 2, 1, 5);
-    // Блик
     ctx.fillStyle = '#FFFFFF44';
     ctx.fillRect(10, 3, 4, 1);
   });
   return textureCache[key];
 }
-
-// ===== КИРКА =====
 function texPickaxe(color) {
   const key = 'pickaxe_' + color;
   if (textureCache[key]) return textureCache[key];
   textureCache[key] = createPixelTexture((ctx) => {
     ctx.clearRect(0,0,16,16);
-    // Ручка
     ctx.fillStyle = '#8B5A2B';
     for (let i = 0; i < 10; i++) ctx.fillRect(5+i, 15-i, 1, 1);
-    // Головка кирки
     ctx.fillStyle = color;
     ctx.fillRect(3, 3, 4, 2);
     ctx.fillRect(8, 1, 5, 2);
@@ -480,15 +462,12 @@ function texPickaxe(color) {
     ctx.fillRect(11, 5, 2, 2);
     ctx.fillRect(1, 4, 2, 2);
     ctx.fillRect(2, 6, 2, 1);
-    // Тень
     ctx.fillStyle = '#00000066';
     ctx.fillRect(3, 5, 4, 1);
     ctx.fillRect(8, 3, 5, 1);
   });
   return textureCache[key];
 }
-
-// ===== ЛОПАТА =====
 function texShovel(color) {
   const key = 'shovel_' + color;
   if (textureCache[key]) return textureCache[key];
@@ -505,48 +484,36 @@ function texShovel(color) {
   });
   return textureCache[key];
 }
-
-// ===== БУЛАВА =====
 function texMace() {
   if (textureCache.mace) return textureCache.mace;
   textureCache.mace = createPixelTexture((ctx) => {
     ctx.clearRect(0,0,16,16);
-    // Ручка
     ctx.fillStyle = '#8B5A2B';
     for (let i = 0; i < 8; i++) ctx.fillRect(6+i, 15-i, 1, 1);
-    // Основание (тяжёлое)
     ctx.fillStyle = '#7A7A7A';
     ctx.fillRect(9, 2, 5, 5);
-    // Шипы
     ctx.fillStyle = '#AAAAAA';
     ctx.fillRect(8, 3, 1, 3);
     ctx.fillRect(14, 3, 1, 3);
     ctx.fillRect(9, 1, 5, 1);
     ctx.fillRect(9, 7, 5, 1);
-    // Тени
     ctx.fillStyle = '#00000066';
     ctx.fillRect(9, 6, 5, 1);
     ctx.fillRect(13, 2, 1, 5);
   });
   return textureCache.mace;
 }
-
-// ===== ТРЕЗУБЕЦ =====
 function texTrident() {
   if (textureCache.trident) return textureCache.trident;
   textureCache.trident = createPixelTexture((ctx) => {
     ctx.clearRect(0,0,16,16);
-    // Древко
     ctx.fillStyle = '#2E5A7A';
     for (let i = 0; i < 12; i++) ctx.fillRect(7, 4+i, 2, 1);
-    // Зубцы
     ctx.fillStyle = '#4AB8D8';
     ctx.fillRect(4, 1, 1, 4);
     ctx.fillRect(11, 1, 1, 4);
     ctx.fillRect(7, 1, 2, 3);
-    // Соединение
     ctx.fillRect(4, 5, 9, 1);
-    // Блики
     ctx.fillStyle = '#FFFFFF88';
     ctx.fillRect(7, 2, 1, 2);
     ctx.fillRect(5, 2, 1, 2);
@@ -554,16 +521,12 @@ function texTrident() {
   });
   return textureCache.trident;
 }
-
-// ===== КОПЬЁ =====
 function texSpear() {
   if (textureCache.spear) return textureCache.spear;
   textureCache.spear = createPixelTexture((ctx) => {
     ctx.clearRect(0,0,16,16);
-    // Древко
     ctx.fillStyle = '#8B5A2B';
     for (let i = 0; i < 13; i++) ctx.fillRect(7, 2+i, 2, 1);
-    // Наконечник
     ctx.fillStyle = '#CCCCCC';
     ctx.fillRect(6, 0, 4, 3);
     ctx.fillRect(7, 3, 2, 1);
@@ -572,59 +535,45 @@ function texSpear() {
   });
   return textureCache.spear;
 }
-
-// ===== ЛУК =====
 function texBow() {
   if (textureCache.bow) return textureCache.bow;
   textureCache.bow = createPixelTexture((ctx) => {
     ctx.clearRect(0,0,16,16);
-    // Дуга лука
     ctx.fillStyle = '#8B5A2B';
     ctx.fillRect(11, 1, 2, 2);
     ctx.fillRect(12, 3, 2, 2);
     ctx.fillRect(13, 5, 1, 6);
     ctx.fillRect(12, 11, 2, 2);
     ctx.fillRect(11, 13, 2, 2);
-    // Тетива
     ctx.fillStyle = '#EEEEEE';
     ctx.fillRect(10, 2, 1, 12);
   });
   return textureCache.bow;
 }
-
-// ===== УДОЧКА =====
 function texFishingRod() {
   if (textureCache.rod) return textureCache.rod;
   textureCache.rod = createPixelTexture((ctx) => {
     ctx.clearRect(0,0,16,16);
-    // Удилище
     ctx.fillStyle = '#8B5A2B';
     for (let i = 0; i < 11; i++) ctx.fillRect(4+i, 12-i, 1, 1);
-    // Более светлый кончик
     ctx.fillStyle = '#AA7A4A';
     ctx.fillRect(13, 2, 1, 1);
-    // Катушка
     ctx.fillStyle = '#5A3A1A';
     ctx.fillRect(4, 9, 3, 3);
-    // Крючок/нить
     ctx.fillStyle = '#EEEEEE';
     ctx.fillRect(2, 14, 1, 1);
     ctx.fillRect(2, 13, 1, 1);
   });
   return textureCache.rod;
 }
-
-// ===== ЭНДЕРПЁРЛ =====
 function texEnderPearl() {
   if (textureCache.pearl) return textureCache.pearl;
   textureCache.pearl = createPixelTexture((ctx) => {
     ctx.clearRect(0,0,16,16);
-    // Сфера
     ctx.fillStyle = '#1A4A3A';
     ctx.fillRect(5, 4, 6, 8);
     ctx.fillRect(4, 5, 8, 6);
     ctx.fillRect(6, 3, 4, 10);
-    // Блик
     ctx.fillStyle = '#4AE9C8';
     ctx.fillRect(6, 5, 3, 3);
     ctx.fillStyle = '#7FFFDA';
@@ -632,15 +581,12 @@ function texEnderPearl() {
   });
   return textureCache.pearl;
 }
-
-// ===== БЛОК (2D текстура) =====
-function texBlock(baseColor, accents = []) {
-  const key = 'block_' + baseColor + JSON.stringify(accents);
+function texBlock(baseColor) {
+  const key = 'block_' + baseColor;
   if (textureCache[key]) return textureCache[key];
   textureCache[key] = createPixelTexture((ctx) => {
     ctx.fillStyle = baseColor;
     ctx.fillRect(0, 0, 16, 16);
-    // Шум
     for (let i = 0; i < 40; i++) {
       ctx.fillStyle = 'rgba(0,0,0,' + (0.05 + Math.random() * 0.15) + ')';
       ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
@@ -649,32 +595,21 @@ function texBlock(baseColor, accents = []) {
       ctx.fillStyle = 'rgba(255,255,255,' + (0.05 + Math.random() * 0.1) + ')';
       ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
     }
-    // Дополнительные акценты
-    accents.forEach(([x, y, w, h, color]) => {
-      ctx.fillStyle = color;
-      ctx.fillRect(x, y, w, h);
-    });
   });
   return textureCache[key];
 }
-
-// ===== ЕДА =====
 function texFoodApple() {
   if (textureCache.apple) return textureCache.apple;
   textureCache.apple = createPixelTexture((ctx) => {
     ctx.clearRect(0,0,16,16);
-    // Тело яблока
     ctx.fillStyle = '#CC2222';
     ctx.fillRect(5, 4, 6, 8);
     ctx.fillRect(4, 6, 8, 5);
     ctx.fillRect(6, 3, 4, 10);
-    // Блик
     ctx.fillStyle = '#FF6666';
     ctx.fillRect(5, 5, 2, 3);
-    // Хвостик
     ctx.fillStyle = '#5A3A1A';
     ctx.fillRect(7, 2, 1, 2);
-    // Листик
     ctx.fillStyle = '#4CAF50';
     ctx.fillRect(8, 2, 2, 1);
   });
@@ -687,11 +622,9 @@ function texFoodBread() {
     ctx.fillStyle = '#C49144';
     ctx.fillRect(3, 5, 10, 6);
     ctx.fillRect(2, 6, 12, 4);
-    // Корочка
     ctx.fillStyle = '#8B5A2B';
     ctx.fillRect(2, 5, 12, 1);
     ctx.fillRect(2, 11, 12, 1);
-    // Зёрнышки
     ctx.fillStyle = '#FFE0A0';
     ctx.fillRect(5, 7, 1, 1);
     ctx.fillRect(8, 8, 1, 1);
@@ -716,16 +649,12 @@ function texFoodGoldenApple() {
   });
   return textureCache.gapple;
 }
-
-// ===== ФАКЕЛ =====
 function texTorch() {
   if (textureCache.torch) return textureCache.torch;
   textureCache.torch = createPixelTexture((ctx) => {
     ctx.clearRect(0,0,16,16);
-    // Ручка
     ctx.fillStyle = '#8B5A2B';
     ctx.fillRect(7, 8, 2, 8);
-    // Огонь
     ctx.fillStyle = '#FF6B00';
     ctx.fillRect(6, 4, 4, 4);
     ctx.fillStyle = '#FFAA00';
@@ -735,21 +664,25 @@ function texTorch() {
   });
   return textureCache.torch;
 }
+function texStick() {
+  if (textureCache.stick) return textureCache.stick;
+  textureCache.stick = createPixelTexture((ctx) => {
+    ctx.clearRect(0,0,16,16);
+    ctx.fillStyle = '#8B5A2B';
+    for (let i = 0; i < 11; i++) ctx.fillRect(3+i, 12-i, 2, 1);
+  });
+  return textureCache.stick;
+}
 
-// ===== РЕГИСТРАЦИЯ ВСЕХ ПРЕДМЕТОВ =====
+// ==================== РЕЕСТР ПРЕДМЕТОВ ====================
 const ITEMS = {
-  // Нет
   none: { name: 'Нет', cat: 'misc', icon: '🚫', type: 'none' },
-
-  // Мечи
   sword_wood: { name: 'Дерев. меч', cat: 'swords', tex: () => texSword('#8B5A2B'), type: 'flat' },
   sword_stone: { name: 'Кам. меч', cat: 'swords', tex: () => texSword('#888888'), type: 'flat' },
   sword_iron: { name: 'Жел. меч', cat: 'swords', tex: () => texSword('#CCCCCC'), type: 'flat' },
   sword_gold: { name: 'Зол. меч', cat: 'swords', tex: () => texSword('#FFD700'), type: 'flat' },
   sword_diamond: { name: 'Алм. меч', cat: 'swords', tex: () => texSword('#4AEDD9'), type: 'flat' },
   sword_netherite: { name: 'Нез. меч', cat: 'swords', tex: () => texSword('#4A4048', '#2A2028'), type: 'flat' },
-
-  // Инструменты
   pickaxe_wood: { name: 'Дерев. кирка', cat: 'tools', tex: () => texPickaxe('#8B5A2B'), type: 'flat' },
   pickaxe_stone: { name: 'Кам. кирка', cat: 'tools', tex: () => texPickaxe('#888888'), type: 'flat' },
   pickaxe_iron: { name: 'Жел. кирка', cat: 'tools', tex: () => texPickaxe('#CCCCCC'), type: 'flat' },
@@ -760,47 +693,34 @@ const ITEMS = {
   axe_netherite: { name: 'Нез. топор', cat: 'tools', tex: () => texAxe('#4A4048'), type: 'flat' },
   shovel_iron: { name: 'Жел. лопата', cat: 'tools', tex: () => texShovel('#CCCCCC'), type: 'flat' },
   shovel_diamond: { name: 'Алм. лопата', cat: 'tools', tex: () => texShovel('#4AEDD9'), type: 'flat' },
-
-  // Оружие
   mace: { name: 'Булава', cat: 'weapons', tex: texMace, type: 'flat' },
   trident: { name: 'Трезубец', cat: 'weapons', tex: texTrident, type: 'flat' },
   spear: { name: 'Копьё', cat: 'weapons', tex: texSpear, type: 'flat' },
   bow: { name: 'Лук', cat: 'weapons', tex: texBow, type: 'flat' },
   fishing_rod: { name: 'Удочка', cat: 'weapons', tex: texFishingRod, type: 'flat' },
   ender_pearl: { name: 'Эндерпёрл', cat: 'weapons', tex: texEnderPearl, type: 'flat' },
-
-  // Еда
   apple: { name: 'Яблоко', cat: 'food', tex: texFoodApple, type: 'flat' },
   bread: { name: 'Хлеб', cat: 'food', tex: texFoodBread, type: 'flat' },
   golden_apple: { name: 'Зол. яблоко', cat: 'food', tex: texFoodGoldenApple, type: 'flat' },
-
-  // Блоки в руке
-  block_grass: { name: 'Трава', cat: 'blocks', tex: () => texBlock('#4CAF50'), type: 'block3d', color: '#4CAF50', top: '#4CAF50', side: '#8B5A2B' },
+  block_grass: { name: 'Трава', cat: 'blocks', tex: () => texBlock('#4CAF50'), type: 'block3d', color: '#4CAF50' },
   block_dirt: { name: 'Земля', cat: 'blocks', tex: () => texBlock('#8B5A2B'), type: 'block3d', color: '#8B5A2B' },
   block_stone: { name: 'Камень', cat: 'blocks', tex: () => texBlock('#888888'), type: 'block3d', color: '#888888' },
-  block_cobble: { name: 'Булыжник', cat: 'blocks', tex: () => texBlock('#777777', [[2,2,3,3,'#555'],[9,5,4,4,'#555'],[5,10,3,3,'#555']]), type: 'block3d', color: '#777777' },
+  block_cobble: { name: 'Булыжник', cat: 'blocks', tex: () => texBlock('#777777'), type: 'block3d', color: '#777777' },
   block_wood: { name: 'Бревно', cat: 'blocks', tex: () => texBlock('#6B4423'), type: 'block3d', color: '#6B4423' },
   block_planks: { name: 'Доски', cat: 'blocks', tex: () => texBlock('#A0522D'), type: 'block3d', color: '#A0522D' },
   block_sand: { name: 'Песок', cat: 'blocks', tex: () => texBlock('#E8D28A'), type: 'block3d', color: '#E8D28A' },
-  block_sandstone: { name: 'Песчаник', cat: 'blocks', tex: () => texBlock('#E0B860'), type: 'block3d', color: '#E0B860' },
-  block_brick: { name: 'Кирпич', cat: 'blocks', tex: () => texBlock('#A0522D', [[0,5,16,1,'#FFF'],[8,0,1,5,'#FFF'],[0,11,16,1,'#FFF'],[8,6,1,5,'#FFF'],[4,12,1,4,'#FFF']]), type: 'block3d', color: '#A0522D' },
-  block_glass: { name: 'Стекло', cat: 'blocks', tex: () => texBlock('#AADDDD', [[1,1,1,14,'#FFF'],[14,1,1,14,'#FFF'],[1,1,14,1,'#FFF'],[1,14,14,1,'#FFF']]), type: 'block3d', color: '#AADDDD', transparent: true, opacity: 0.6 },
-  block_glowstone: { name: 'Светокамень', cat: 'blocks', tex: () => texBlock('#FFD700', [[3,3,2,2,'#FFFF88'],[11,5,2,2,'#FFFF88'],[6,11,2,2,'#FFFF88']]), type: 'block3d', color: '#FFD700', emissive: true },
-  block_netherrack: { name: 'Незерак', cat: 'blocks', tex: () => texBlock('#7A2A2A', [[3,3,3,3,'#5A1A1A'],[10,8,3,3,'#5A1A1A']]), type: 'block3d', color: '#7A2A2A' },
-  block_obsidian: { name: 'Обсидиан', cat: 'blocks', tex: () => texBlock('#1A0A2A', [[3,3,2,2,'#3A1A5A'],[9,9,2,2,'#3A1A5A']]), type: 'block3d', color: '#1A0A2A' },
-  block_diamond: { name: 'Алм. блок', cat: 'blocks', tex: () => texBlock('#4AEDD9', [[4,4,3,3,'#88FFEE'],[9,9,3,3,'#88FFEE']]), type: 'block3d', color: '#4AEDD9' },
-  block_gold: { name: 'Зол. блок', cat: 'blocks', tex: () => texBlock('#FFD700', [[4,4,3,3,'#FFFF88'],[9,9,3,3,'#FFFF88']]), type: 'block3d', color: '#FFD700' },
-  block_emerald: { name: 'Изумруд. блок', cat: 'blocks', tex: () => texBlock('#17DD62', [[4,4,3,3,'#88FFAA'],[9,9,3,3,'#88FFAA']]), type: 'block3d', color: '#17DD62' },
-  block_tnt: { name: 'ТНТ', cat: 'blocks', tex: () => texBlock('#CC2222', [[0,5,16,3,'#FFFFFF'],[0,10,16,3,'#FFFFFF'],[3,5,4,3,'#000000'],[3,10,4,3,'#000000']]), type: 'block3d', color: '#CC2222' },
-  block_command: { name: 'Ком. блок', cat: 'blocks', tex: () => texBlock('#9C27B0', [[3,3,10,2,'#FFAA00'],[3,11,10,2,'#FFAA00'],[5,5,6,6,'#E0AAFF']]), type: 'block3d', color: '#9C27B0' },
-
-  // Разное
+  block_brick: { name: 'Кирпич', cat: 'blocks', tex: () => texBlock('#A0522D'), type: 'block3d', color: '#A0522D' },
+  block_glass: { name: 'Стекло', cat: 'blocks', tex: () => texBlock('#AADDDD'), type: 'block3d', color: '#AADDDD', transparent: true, opacity: 0.6 },
+  block_glowstone: { name: 'Светокамень', cat: 'blocks', tex: () => texBlock('#FFD700'), type: 'block3d', color: '#FFD700', emissive: true },
+  block_netherrack: { name: 'Незерак', cat: 'blocks', tex: () => texBlock('#7A2A2A'), type: 'block3d', color: '#7A2A2A' },
+  block_obsidian: { name: 'Обсидиан', cat: 'blocks', tex: () => texBlock('#1A0A2A'), type: 'block3d', color: '#1A0A2A' },
+  block_diamond: { name: 'Алм. блок', cat: 'blocks', tex: () => texBlock('#4AEDD9'), type: 'block3d', color: '#4AEDD9' },
+  block_gold: { name: 'Зол. блок', cat: 'blocks', tex: () => texBlock('#FFD700'), type: 'block3d', color: '#FFD700' },
+  block_emerald: { name: 'Изумруд. блок', cat: 'blocks', tex: () => texBlock('#17DD62'), type: 'block3d', color: '#17DD62' },
+  block_tnt: { name: 'ТНТ', cat: 'blocks', tex: () => texBlock('#CC2222'), type: 'block3d', color: '#CC2222' },
+  block_command: { name: 'Ком. блок', cat: 'blocks', tex: () => texBlock('#9C27B0'), type: 'block3d', color: '#9C27B0' },
   torch: { name: 'Факел', cat: 'misc', tex: texTorch, type: 'flat' },
-  stick: { name: 'Палка', cat: 'misc', tex: () => createPixelTexture((ctx) => {
-    ctx.clearRect(0,0,16,16);
-    ctx.fillStyle = '#8B5A2B';
-    for (let i = 0; i < 11; i++) ctx.fillRect(3+i, 12-i, 2, 1);
-  }), type: 'flat' },
+  stick: { name: 'Палка', cat: 'misc', tex: texStick, type: 'flat' },
 };
 
 // ==================== СЦЕНА ====================
@@ -851,6 +771,7 @@ function createDefaultSkin() {
   const ctx = c.getContext('2d');
   ctx.imageSmoothingEnabled = false;
   ctx.clearRect(0, 0, 64, 64);
+  // Голова
   ctx.fillStyle = '#3A2418'; ctx.fillRect(8, 0, 8, 8);
   ctx.fillStyle = '#B88A62'; ctx.fillRect(16, 0, 8, 8);
   ctx.fillStyle = '#B88A62'; ctx.fillRect(0, 8, 8, 8);
@@ -864,29 +785,34 @@ function createDefaultSkin() {
   ctx.fillStyle = '#3A2418'; ctx.fillRect(16, 8, 8, 3);
   ctx.fillStyle = '#B88A62'; ctx.fillRect(24, 8, 8, 8);
   ctx.fillStyle = '#3A2418'; ctx.fillRect(24, 8, 8, 3);
+  // Тело
   ctx.fillStyle = '#3A2418'; ctx.fillRect(20, 16, 8, 4);
   ctx.fillStyle = '#2E4A8C'; ctx.fillRect(28, 16, 8, 4);
   ctx.fillStyle = '#00A0FF'; ctx.fillRect(16, 20, 4, 12); ctx.fillRect(20, 20, 8, 12);
   ctx.fillStyle = '#0080CC'; ctx.fillRect(20, 27, 8, 1);
   ctx.fillStyle = '#00A0FF'; ctx.fillRect(28, 20, 4, 12); ctx.fillRect(32, 20, 8, 12);
+  // Правая рука
   ctx.fillStyle = '#00A0FF'; ctx.fillRect(44, 16, 4, 4);
   ctx.fillStyle = '#B88A62'; ctx.fillRect(48, 16, 4, 4);
   ctx.fillStyle = '#00A0FF'; ctx.fillRect(40, 20, 4, 6); ctx.fillStyle = '#B88A62'; ctx.fillRect(40, 26, 4, 6);
   ctx.fillStyle = '#00A0FF'; ctx.fillRect(44, 20, 4, 6); ctx.fillStyle = '#B88A62'; ctx.fillRect(44, 26, 4, 6);
   ctx.fillStyle = '#00A0FF'; ctx.fillRect(48, 20, 4, 6); ctx.fillStyle = '#B88A62'; ctx.fillRect(48, 26, 4, 6);
   ctx.fillStyle = '#00A0FF'; ctx.fillRect(52, 20, 4, 6); ctx.fillStyle = '#B88A62'; ctx.fillRect(52, 26, 4, 6);
+  // Левая рука
   ctx.fillStyle = '#00A0FF'; ctx.fillRect(36, 48, 4, 4);
   ctx.fillStyle = '#B88A62'; ctx.fillRect(40, 48, 4, 4);
   ctx.fillStyle = '#00A0FF'; ctx.fillRect(32, 52, 4, 6); ctx.fillStyle = '#B88A62'; ctx.fillRect(32, 58, 4, 6);
   ctx.fillStyle = '#00A0FF'; ctx.fillRect(36, 52, 4, 6); ctx.fillStyle = '#B88A62'; ctx.fillRect(36, 58, 4, 6);
   ctx.fillStyle = '#00A0FF'; ctx.fillRect(40, 52, 4, 6); ctx.fillStyle = '#B88A62'; ctx.fillRect(40, 58, 4, 6);
   ctx.fillStyle = '#00A0FF'; ctx.fillRect(44, 52, 4, 6); ctx.fillStyle = '#B88A62'; ctx.fillRect(44, 58, 4, 6);
+  // Правая нога
   ctx.fillStyle = '#2E4A8C'; ctx.fillRect(4, 16, 4, 4);
   ctx.fillStyle = '#1A1A1A'; ctx.fillRect(8, 16, 4, 4);
   ctx.fillStyle = '#2E4A8C'; ctx.fillRect(0, 20, 4, 9); ctx.fillStyle = '#1A1A1A'; ctx.fillRect(0, 29, 4, 3);
   ctx.fillStyle = '#2E4A8C'; ctx.fillRect(4, 20, 4, 9); ctx.fillStyle = '#1A1A1A'; ctx.fillRect(4, 29, 4, 3);
   ctx.fillStyle = '#2E4A8C'; ctx.fillRect(8, 20, 4, 9); ctx.fillStyle = '#1A1A1A'; ctx.fillRect(8, 29, 4, 3);
   ctx.fillStyle = '#2E4A8C'; ctx.fillRect(12, 20, 4, 9); ctx.fillStyle = '#1A1A1A'; ctx.fillRect(12, 29, 4, 3);
+  // Левая нога
   ctx.fillStyle = '#2E4A8C'; ctx.fillRect(20, 48, 4, 4);
   ctx.fillStyle = '#1A1A1A'; ctx.fillRect(24, 48, 4, 4);
   ctx.fillStyle = '#2E4A8C'; ctx.fillRect(16, 52, 4, 9); ctx.fillStyle = '#1A1A1A'; ctx.fillRect(16, 61, 4, 3);
@@ -901,27 +827,44 @@ function createDefaultSkin() {
   return tex;
 }
 
-function makeBodyPart(w, h, d, tex, uv) {
+// ========= ФУНКЦИЯ С ФИКСОМ ЗЕРКАЛИРОВАНИЯ =========
+function makeBodyPart(w, h, d, tex, uv, mirrorFaces = {}) {
   const geo = new THREE.BoxGeometry(w, h, d);
   if (uv) {
     const uvs = geo.attributes.uv.array;
-    const setFace = (i, x, y, w, h) => {
-      const u0 = x/64, v1 = 1 - y/64, u1 = (x+w)/64, v0 = 1 - (y+h)/64;
+    // Порядок граней: 0=+X(правая), 1=-X(левая), 2=+Y(верх), 3=-Y(низ), 4=+Z(перед), 5=-Z(зад)
+    const setFace = (i, x, y, w, h, mirror) => {
+      const u0 = x / 64;
+      const v1 = 1 - y / 64;
+      const u1 = (x + w) / 64;
+      const v0 = 1 - (y + h) / 64;
       const o = i * 8;
-      uvs[o+0]=u0; uvs[o+1]=v1; uvs[o+2]=u1; uvs[o+3]=v1;
-      uvs[o+4]=u0; uvs[o+5]=v0; uvs[o+6]=u1; uvs[o+7]=v0;
+      if (mirror) {
+        uvs[o + 0] = u1; uvs[o + 1] = v1;
+        uvs[o + 2] = u0; uvs[o + 3] = v1;
+        uvs[o + 4] = u1; uvs[o + 5] = v0;
+        uvs[o + 6] = u0; uvs[o + 7] = v0;
+      } else {
+        uvs[o + 0] = u0; uvs[o + 1] = v1;
+        uvs[o + 2] = u1; uvs[o + 3] = v1;
+        uvs[o + 4] = u0; uvs[o + 5] = v0;
+        uvs[o + 6] = u1; uvs[o + 7] = v0;
+      }
     };
-    setFace(0, uv.right[0], uv.right[1], uv.right[2], uv.right[3]);
-    setFace(1, uv.left[0], uv.left[1], uv.left[2], uv.left[3]);
-    setFace(2, uv.top[0], uv.top[1], uv.top[2], uv.top[3]);
-    setFace(3, uv.bottom[0], uv.bottom[1], uv.bottom[2], uv.bottom[3]);
-    setFace(4, uv.front[0], uv.front[1], uv.front[2], uv.front[3]);
-    setFace(5, uv.back[0], uv.back[1], uv.back[2], uv.back[3]);
+    setFace(0, uv.right[0], uv.right[1], uv.right[2], uv.right[3], mirrorFaces[0]);
+    setFace(1, uv.left[0], uv.left[1], uv.left[2], uv.left[3], mirrorFaces[1]);
+    setFace(2, uv.top[0], uv.top[1], uv.top[2], uv.top[3], mirrorFaces[2]);
+    setFace(3, uv.bottom[0], uv.bottom[1], uv.bottom[2], uv.bottom[3], mirrorFaces[3]);
+    setFace(4, uv.front[0], uv.front[1], uv.front[2], uv.front[3], mirrorFaces[4]);
+    setFace(5, uv.back[0], uv.back[1], uv.back[2], uv.back[3], mirrorFaces[5]);
     geo.attributes.uv.needsUpdate = true;
   }
-  const mat = new THREE.MeshLambertMaterial({ map: tex, transparent: true, alphaTest: 0.5 });
+  const mat = new THREE.MeshLambertMaterial({
+    map: tex, transparent: true, alphaTest: 0.5, side: THREE.FrontSide
+  });
   const mesh = new THREE.Mesh(geo, mat);
-  mesh.castShadow = true; mesh.receiveShadow = true;
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
   return mesh;
 }
 
@@ -931,52 +874,59 @@ function buildSkinModel(tex) {
     skinModel.traverse(c => { if (c.isMesh) { c.geometry.dispose(); c.material.dispose(); } });
   }
   const g = new THREE.Group();
+
+  // ГОЛОВА — зеркалим правую и левую грани
   const head = makeBodyPart(0.5, 0.5, 0.5, tex, {
     right:[0,8,8,8], left:[16,8,8,8], top:[8,0,8,8],
     bottom:[16,0,8,8], front:[8,8,8,8], back:[24,8,8,8]
-  });
+  }, { 0: true, 1: false });
   const headPivot = new THREE.Group();
   headPivot.position.set(0, 1.25, 0);
   head.position.set(0, 0.25, 0);
   headPivot.add(head);
 
+  // ТЕЛО — зеркалим правую грань
   const body = makeBodyPart(0.5, 0.75, 0.25, tex, {
     right:[16,20,4,12], left:[28,20,4,12], top:[20,16,8,4],
     bottom:[28,16,8,4], front:[20,20,8,12], back:[32,20,8,12]
-  });
+  }, { 0: true, 1: false });
   body.position.set(0, 0.875, 0);
 
+  // ПРАВАЯ РУКА — зеркалим левую грань
   const rightArm = makeBodyPart(0.25, 0.75, 0.25, tex, {
     right:[40,20,4,12], left:[48,20,4,12], top:[44,16,4,4],
     bottom:[48,16,4,4], front:[44,20,4,12], back:[52,20,4,12]
-  });
+  }, { 0: false, 1: true });
   const rightArmPivot = new THREE.Group();
   rightArmPivot.position.set(-0.375, 1.25, 0);
   rightArm.position.set(0, -0.375, 0);
   rightArmPivot.add(rightArm);
 
+  // ЛЕВАЯ РУКА — зеркалим правую грань
   const leftArm = makeBodyPart(0.25, 0.75, 0.25, tex, {
     right:[32,52,4,12], left:[40,52,4,12], top:[36,48,4,4],
     bottom:[40,48,4,4], front:[36,52,4,12], back:[44,52,4,12]
-  });
+  }, { 0: true, 1: false });
   const leftArmPivot = new THREE.Group();
   leftArmPivot.position.set(0.375, 1.25, 0);
   leftArm.position.set(0, -0.375, 0);
   leftArmPivot.add(leftArm);
 
+  // ПРАВАЯ НОГА — зеркалим левую грань
   const rightLeg = makeBodyPart(0.25, 0.75, 0.25, tex, {
     right:[0,20,4,12], left:[8,20,4,12], top:[4,16,4,4],
     bottom:[8,16,4,4], front:[4,20,4,12], back:[12,20,4,12]
-  });
+  }, { 0: false, 1: true });
   const rightLegPivot = new THREE.Group();
   rightLegPivot.position.set(-0.125, 0.5, 0);
   rightLeg.position.set(0, -0.375, 0);
   rightLegPivot.add(rightLeg);
 
+  // ЛЕВАЯ НОГА — зеркалим правую грань
   const leftLeg = makeBodyPart(0.25, 0.75, 0.25, tex, {
     right:[16,52,4,12], left:[24,52,4,12], top:[20,48,4,4],
     bottom:[24,48,4,4], front:[20,52,4,12], back:[28,52,4,12]
-  });
+  }, { 0: true, 1: false });
   const leftLegPivot = new THREE.Group();
   leftLegPivot.position.set(0.125, 0.5, 0);
   leftLeg.position.set(0, -0.375, 0);
@@ -989,7 +939,7 @@ function buildSkinModel(tex) {
   updateHeldItem();
 }
 
-// ==================== ПРЕДМЕТ В РУКЕ (2D) ====================
+// ==================== ПРЕДМЕТ В РУКЕ ====================
 let currentItem = 'none';
 let currentHand = 'right';
 
@@ -997,31 +947,24 @@ function createItemMesh(itemKey) {
   const item = ITEMS[itemKey];
   if (!item || item.type === 'none') return null;
   const group = new THREE.Group();
-
   if (item.type === 'flat') {
-    // Плоский спрайт (как в руке Minecraft)
     const tex = item.tex();
     const geo = new THREE.PlaneGeometry(0.5, 0.5);
     const mat = new THREE.MeshLambertMaterial({ map: tex, transparent: true, side: THREE.DoubleSide, alphaTest: 0.1 });
     const mesh = new THREE.Mesh(geo, mat);
     mesh.castShadow = true;
     group.add(mesh);
-    // Ориентируем спрайт как в руке — вертикально, лицом к камере
-    group.rotation.set(0, 0, 0);
   } else if (item.type === 'block3d') {
-    // 3D блок с 2D текстурами
     const tex = item.tex();
-    const color = item.color || 0xFFFFFF;
     const mat = new THREE.MeshLambertMaterial({
-      map: tex, color: item.transparent ? 0xffffff : 0xffffff,
-      transparent: !!item.transparent, opacity: item.opacity || 1
+      map: tex, transparent: !!item.transparent, opacity: item.opacity || 1
     });
+    if (item.emissive) {
+      mat.emissive = new THREE.Color(item.color);
+      mat.emissiveIntensity = 0.3;
+    }
     const geo = new THREE.BoxGeometry(0.3, 0.3, 0.3);
     const mesh = new THREE.Mesh(geo, mat);
-    if (item.emissive) {
-      mesh.material.emissive = new THREE.Color(color);
-      mesh.material.emissiveIntensity = 0.3;
-    }
     mesh.castShadow = true;
     group.add(mesh);
   }
@@ -1037,18 +980,13 @@ function updateHeldItem() {
   if (currentItem === 'none' || !skinModel || !bodyParts.rightArm) return;
   heldItemMesh = createItemMesh(currentItem);
   if (!heldItemMesh) return;
-
   const item = ITEMS[currentItem];
   if (item.type === 'flat') {
-    // Спрайт повёрнут лицом к камере, "держится" в руке
     heldItemMesh.position.set(0, -0.55, 0.15);
-    heldItemMesh.rotation.set(0, 0, 0);
   } else {
-    // Блок — просто в ладони
     heldItemMesh.position.set(0, -0.75, 0.18);
   }
   heldItemMesh.userData.isItem = true;
-
   const arm = currentHand === 'right' ? bodyParts.rightArm : bodyParts.leftArm;
   if (arm) arm.add(heldItemMesh);
 }
@@ -1063,8 +1001,6 @@ function buildItemGrid(cat) {
     btn.className = 'item-btn';
     btn.dataset.item = key;
     if (key === currentItem) btn.classList.add('active');
-
-    // Иконка
     if (item.type === 'none') {
       const span = document.createElement('span');
       span.style.fontSize = '24px';
@@ -1082,13 +1018,11 @@ function buildItemGrid(cat) {
         btn.appendChild(c);
       } catch(e) {}
     }
-
     const name = document.createElement('div');
     name.textContent = item.name;
     name.style.fontSize = '8px';
     name.style.marginTop = '2px';
     btn.appendChild(name);
-
     btn.onclick = () => {
       document.querySelectorAll('.item-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
@@ -1100,28 +1034,20 @@ function buildItemGrid(cat) {
   });
 }
 
-// ==================== БЛОКИ НА СЦЕНЕ ====================
+// ==================== БЛОКИ ====================
 let placedBlocks = [];
 let buildMode = false;
 
 const BLOCK_TYPES = {
-  grass: { color: '#4CAF50', top: '#4CAF50', side: '#8B5A2B' },
-  dirt: { color: '#8B5A2B' },
-  stone: { color: '#888888' },
-  cobblestone: { color: '#777777' },
-  wood: { color: '#6B4423' },
-  planks: { color: '#A0522D' },
-  sand: { color: '#E8D28A' },
-  sandstone: { color: '#E0B860' },
-  brick: { color: '#A0522D' },
-  glass: { color: '#AADDDD', opacity: 0.5, transparent: true },
+  grass: { color: '#4CAF50' }, dirt: { color: '#8B5A2B' },
+  stone: { color: '#888888' }, cobblestone: { color: '#777777' },
+  wood: { color: '#6B4423' }, planks: { color: '#A0522D' },
+  sand: { color: '#E8D28A' }, sandstone: { color: '#E0B860' },
+  brick: { color: '#A0522D' }, glass: { color: '#AADDDD', opacity: 0.5, transparent: true },
   glowstone: { color: '#FFD700', emissive: true },
-  netherrack: { color: '#7A2A2A' },
-  obsidian: { color: '#1A0A2A' },
-  diamond: { color: '#4AEDD9' },
-  gold: { color: '#FFD700' },
-  emerald: { color: '#17DD62' },
-  tnt: { color: '#CC2222' },
+  netherrack: { color: '#7A2A2A' }, obsidian: { color: '#1A0A2A' },
+  diamond: { color: '#4AEDD9' }, gold: { color: '#FFD700' },
+  emerald: { color: '#17DD62' }, tnt: { color: '#CC2222' },
   command_block: { color: '#9C27B0' }
 };
 
@@ -1131,7 +1057,6 @@ function createBlockTexture(type) {
   return createPixelTexture((ctx) => {
     ctx.fillStyle = b.color;
     ctx.fillRect(0, 0, 16, 16);
-    // Шум
     for (let i = 0; i < 40; i++) {
       ctx.fillStyle = 'rgba(0,0,0,' + (0.05 + Math.random()*0.15) + ')';
       ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
@@ -1140,16 +1065,10 @@ function createBlockTexture(type) {
       ctx.fillStyle = 'rgba(255,255,255,' + (0.05 + Math.random()*0.1) + ')';
       ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
     }
-    // Особые
     if (type === 'grass') {
       ctx.fillStyle = '#4CAF50';
       ctx.fillRect(0, 0, 16, 4);
-      for (let i = 0; i < 8; i++) {
-        ctx.fillRect(Math.floor(Math.random()*16), 4, 1, 1);
-      }
-    } else if (type === 'cobblestone') {
-      ctx.fillStyle = '#555';
-      ctx.fillRect(2, 2, 3, 3); ctx.fillRect(9, 5, 4, 4); ctx.fillRect(5, 10, 3, 3);
+      for (let i = 0; i < 8; i++) ctx.fillRect(Math.floor(Math.random()*16), 4, 1, 1);
     } else if (type === 'brick') {
       ctx.fillStyle = '#FFF';
       ctx.fillRect(0, 5, 16, 1); ctx.fillRect(8, 0, 1, 5);
@@ -1178,18 +1097,15 @@ function placeBlock(x, y, z, type) {
   const mats = [];
   if (type === 'grass') {
     const topTex = createPixelTexture((ctx) => {
-      ctx.fillStyle = '#4CAF50';
-      ctx.fillRect(0, 0, 16, 16);
+      ctx.fillStyle = '#4CAF50'; ctx.fillRect(0, 0, 16, 16);
       for (let i = 0; i < 30; i++) {
         ctx.fillStyle = 'rgba(0,0,0,' + (0.05 + Math.random()*0.15) + ')';
         ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
       }
     });
     const sideTex = createPixelTexture((ctx) => {
-      ctx.fillStyle = '#8B5A2B';
-      ctx.fillRect(0, 0, 16, 16);
-      ctx.fillStyle = '#4CAF50';
-      ctx.fillRect(0, 0, 16, 4);
+      ctx.fillStyle = '#8B5A2B'; ctx.fillRect(0, 0, 16, 16);
+      ctx.fillStyle = '#4CAF50'; ctx.fillRect(0, 0, 16, 4);
       for (let i = 0; i < 20; i++) {
         ctx.fillStyle = 'rgba(0,0,0,' + (0.05 + Math.random()*0.15) + ')';
         ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
@@ -1198,13 +1114,10 @@ function placeBlock(x, y, z, type) {
     const topMat = new THREE.MeshLambertMaterial({ map: topTex });
     const sideMat = new THREE.MeshLambertMaterial({ map: sideTex });
     const bottomMat = new THREE.MeshLambertMaterial({ map: createBlockTexture('dirt') });
-    // Порядок: +X, -X, +Y, -Y, +Z, -Z
     mats.push(sideMat, sideMat, topMat, bottomMat, sideMat, sideMat);
   } else {
     const mat = new THREE.MeshLambertMaterial({
-      map: tex,
-      transparent: !!b.transparent,
-      opacity: b.opacity || 1
+      map: tex, transparent: !!b.transparent, opacity: b.opacity || 1
     });
     if (b.emissive) {
       mat.emissive = new THREE.Color(b.color);
@@ -1236,7 +1149,6 @@ function removeBlock(mesh) {
   else mesh.material.dispose();
   placedBlocks = placedBlocks.filter(b => b !== mesh);
 }
-
 function clearAllBlocks() {
   placedBlocks.forEach(b => {
     if (b.userData.light) scene.remove(b.userData.light);
@@ -1251,6 +1163,8 @@ function clearAllBlocks() {
 // ==================== ЛОКАЦИИ ====================
 let currentLocation = 'forest';
 let locationObjects = [];
+let locationFloor = null;
+let locationWater = null;
 
 function clearLocation() {
   locationObjects.forEach(o => {
@@ -1271,14 +1185,10 @@ function clearLocation() {
   locationWater = null;
 }
 
-let locationFloor = null;
-let locationWater = null;
-
 function createTreeMesh(x, z, type = 'oak') {
   const group = new THREE.Group();
   const trunkTex = createPixelTexture((ctx) => {
-    ctx.fillStyle = '#6B4423';
-    ctx.fillRect(0, 0, 16, 16);
+    ctx.fillStyle = '#6B4423'; ctx.fillRect(0, 0, 16, 16);
     for (let i = 0; i < 50; i++) {
       ctx.fillStyle = 'rgba(0,0,0,' + Math.random() * 0.3 + ')';
       ctx.fillRect(0, Math.floor(Math.random()*16), 16, 1);
@@ -1289,7 +1199,6 @@ function createTreeMesh(x, z, type = 'oak') {
   trunk.position.set(0, 1.5, 0);
   trunk.castShadow = true; trunk.receiveShadow = true;
   group.add(trunk);
-
   const leafTex = createPixelTexture((ctx) => {
     ctx.fillStyle = type === 'spruce' ? '#1B4A1B' : type === 'birch' ? '#7ACA5A' : '#2E7D32';
     ctx.fillRect(0, 0, 16, 16);
@@ -1299,9 +1208,7 @@ function createTreeMesh(x, z, type = 'oak') {
     }
   });
   const leafMat = new THREE.MeshLambertMaterial({ map: leafTex });
-
   if (type === 'spruce') {
-    // Ёлка — пирамидка
     for (let i = 0; i < 4; i++) {
       const size = 2.5 - i * 0.5;
       const leaves = new THREE.Mesh(new THREE.BoxGeometry(size, size, size), leafMat);
@@ -1310,7 +1217,6 @@ function createTreeMesh(x, z, type = 'oak') {
       group.add(leaves);
     }
   } else {
-    // Дуб/берёза — куб
     const leaves1 = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.8, 2.2), leafMat);
     leaves1.position.set(0, 3.2, 0);
     leaves1.castShadow = true;
@@ -1319,15 +1225,13 @@ function createTreeMesh(x, z, type = 'oak') {
     leaves2.castShadow = true;
     group.add(leaves1, leaves2);
   }
-
   group.position.set(x, 0, z);
   return group;
 }
 
 function createBush(x, z) {
   const leafTex = createPixelTexture((ctx) => {
-    ctx.fillStyle = '#2E7D32';
-    ctx.fillRect(0, 0, 16, 16);
+    ctx.fillStyle = '#2E7D32'; ctx.fillRect(0, 0, 16, 16);
     for (let i = 0; i < 60; i++) {
       ctx.fillStyle = 'rgba(0,0,0,' + Math.random() * 0.4 + ')';
       ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
@@ -1342,8 +1246,7 @@ function createBush(x, z) {
 
 function createRock(x, z, size = 1) {
   const tex = createPixelTexture((ctx) => {
-    ctx.fillStyle = '#888';
-    ctx.fillRect(0, 0, 16, 16);
+    ctx.fillStyle = '#888'; ctx.fillRect(0, 0, 16, 16);
     for (let i = 0; i < 40; i++) {
       ctx.fillStyle = 'rgba(0,0,0,' + Math.random() * 0.3 + ')';
       ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
@@ -1359,26 +1262,16 @@ function createRock(x, z, size = 1) {
 
 function createFlower(x, z, color = 0xFF0000) {
   const group = new THREE.Group();
-  const stem = new THREE.Mesh(
-    new THREE.BoxGeometry(0.05, 0.4, 0.05),
-    new THREE.MeshLambertMaterial({ color: 0x4CAF50 })
-  );
+  const stem = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.4, 0.05), new THREE.MeshLambertMaterial({ color: 0x4CAF50 }));
   stem.position.set(0, 0.2, 0);
   group.add(stem);
   const petalMat = new THREE.MeshLambertMaterial({ color });
   for (let i = 0; i < 4; i++) {
     const petal = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.05, 0.15), petalMat);
-    petal.position.set(
-      (i % 2 === 0 ? 0.08 : -0.08) * (i < 2 ? 1 : -1),
-      0.42,
-      (i < 2 ? 0.08 : -0.08)
-    );
+    petal.position.set((i % 2 === 0 ? 0.08 : -0.08) * (i < 2 ? 1 : -1), 0.42, (i < 2 ? 0.08 : -0.08));
     group.add(petal);
   }
-  const center = new THREE.Mesh(
-    new THREE.BoxGeometry(0.1, 0.05, 0.1),
-    new THREE.MeshLambertMaterial({ color: 0xFFFF00 })
-  );
+  const center = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.05, 0.1), new THREE.MeshLambertMaterial({ color: 0xFFFF00 }));
   center.position.y = 0.45;
   group.add(center);
   group.position.set(x, 0, z);
@@ -1387,8 +1280,7 @@ function createFlower(x, z, color = 0xFF0000) {
 
 function createCactus(x, z) {
   const tex = createPixelTexture((ctx) => {
-    ctx.fillStyle = '#2E7D32';
-    ctx.fillRect(0, 0, 16, 16);
+    ctx.fillStyle = '#2E7D32'; ctx.fillRect(0, 0, 16, 16);
     for (let i = 0; i < 30; i++) {
       ctx.fillStyle = 'rgba(0,0,0,' + Math.random() * 0.3 + ')';
       ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
@@ -1403,8 +1295,7 @@ function createCactus(x, z) {
 
 function createWater(x, z, w, h, y = 0.05) {
   const tex = createPixelTexture((ctx) => {
-    ctx.fillStyle = '#3B7BD8';
-    ctx.fillRect(0, 0, 16, 16);
+    ctx.fillStyle = '#3B7BD8'; ctx.fillRect(0, 0, 16, 16);
     for (let i = 0; i < 30; i++) {
       ctx.fillStyle = 'rgba(255,255,255,' + Math.random() * 0.2 + ')';
       ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
@@ -1421,11 +1312,9 @@ function createWater(x, z, w, h, y = 0.05) {
 function generateLocation(loc) {
   clearLocation();
   currentLocation = loc;
-
   const density = parseInt(document.getElementById('locDensity').value) || 10;
   const range = 20;
 
-  // === ЦВЕТА ПОЛА, НЕБА, ТУМАНА ===
   const configs = {
     plains: { floor: 0x7CBF4F, sky: 0x87CEEB, fog: 0x87CEEB, trees: 0.2, bushes: 0.3, flowers: 0.8, rocks: 0.3 },
     forest: { floor: 0x4CAF50, sky: 0x7CBAE8, fog: 0x9CCFE8, trees: 1, bushes: 0.5, flowers: 0.4, rocks: 0.2 },
@@ -1438,14 +1327,11 @@ function generateLocation(loc) {
     ocean: { floor: 0xC2B280, sky: 0x87CEEB, fog: 0x87CEEB, trees: 0, bushes: 0, flowers: 0, rocks: 0.2, water: 'big' },
     cave: { floor: 0x555555, sky: 0x1A1A1A, fog: 0x1A1A1A, trees: 0, bushes: 0, flowers: 0, rocks: 0.8, cave: true }
   };
-
   const cfg = configs[loc] || configs.forest;
 
-  // Сцена
   scene.background = new THREE.Color(cfg.sky);
   scene.fog = new THREE.Fog(cfg.fog, 25, 80);
 
-  // Пол
   const floorGeo = new THREE.PlaneGeometry(80, 80);
   const floorMat = new THREE.MeshLambertMaterial({ color: cfg.floor });
   locationFloor = new THREE.Mesh(floorGeo, floorMat);
@@ -1453,12 +1339,11 @@ function generateLocation(loc) {
   locationFloor.receiveShadow = true;
   scene.add(locationFloor);
 
-  // Деревья
   const treeCount = Math.floor(density * (cfg.trees || 0));
   for (let i = 0; i < treeCount; i++) {
     const x = (Math.random() - 0.5) * range * 2;
     const z = (Math.random() - 0.5) * range * 2;
-    if (Math.abs(x) < 3 && Math.abs(z) < 3) continue; // не спавним на игроке
+    if (Math.abs(x) < 3 && Math.abs(z) < 3) continue;
     let type = 'oak';
     if (loc === 'forest') type = Math.random() < 0.3 ? 'birch' : Math.random() < 0.5 ? 'spruce' : 'oak';
     if (loc === 'snow') type = 'spruce';
@@ -1467,7 +1352,6 @@ function generateLocation(loc) {
     locationObjects.push(tree);
   }
 
-  // Кусты
   const bushCount = Math.floor(density * (cfg.bushes || 0));
   for (let i = 0; i < bushCount; i++) {
     const x = (Math.random() - 0.5) * range * 2;
@@ -1478,7 +1362,6 @@ function generateLocation(loc) {
     locationObjects.push(bush);
   }
 
-  // Цветы
   const flowerCount = Math.floor(density * (cfg.flowers || 0));
   for (let i = 0; i < flowerCount; i++) {
     const x = (Math.random() - 0.5) * range * 2;
@@ -1490,7 +1373,6 @@ function generateLocation(loc) {
     locationObjects.push(flower);
   }
 
-  // Камни
   const rockCount = Math.floor(density * (cfg.rocks || 0));
   for (let i = 0; i < rockCount; i++) {
     const x = (Math.random() - 0.5) * range * 2;
@@ -1501,7 +1383,6 @@ function generateLocation(loc) {
     locationObjects.push(rock);
   }
 
-  // Кактусы
   if (cfg.cacti) {
     const count = Math.floor(density * cfg.cacti);
     for (let i = 0; i < count; i++) {
@@ -1514,7 +1395,6 @@ function generateLocation(loc) {
     }
   }
 
-  // Вода
   if (cfg.water === 'big') {
     locationWater = createWater(0, 0, 80, 80, 0.05);
     scene.add(locationWater);
@@ -1525,21 +1405,11 @@ function generateLocation(loc) {
     locationObjects.push(w);
   }
 
-  // Дома (деревня)
   if (cfg.houses) {
-    for (let i = 0; i < 3; i++) {
-      const x = -6 + i * 6;
-      const z = -5;
-      addSimpleHouse(x, z);
-    }
-    for (let i = 0; i < 3; i++) {
-      const x = -6 + i * 6;
-      const z = 6;
-      addSimpleHouse(x, z);
-    }
+    for (let i = 0; i < 3; i++) addSimpleHouse(-6 + i * 6, -5);
+    for (let i = 0; i < 3; i++) addSimpleHouse(-6 + i * 6, 6);
   }
 
-  // Незер-специфика
   if (cfg.nether) {
     for (let i = 0; i < 8; i++) {
       const x = (Math.random() - 0.5) * range * 2;
@@ -1559,7 +1429,6 @@ function generateLocation(loc) {
     }
   }
 
-  // Энд-специфика
   if (cfg.end) {
     for (let i = 0; i < 12; i++) {
       const x = (Math.random() - 0.5) * range * 2;
@@ -1575,7 +1444,6 @@ function generateLocation(loc) {
     }
   }
 
-  // Пещера
   if (cfg.cave) {
     scene.background = new THREE.Color(0x1A1A1A);
     for (let i = 0; i < 20; i++) {
@@ -1596,16 +1464,13 @@ function generateLocation(loc) {
 }
 
 function addSimpleHouse(x, z) {
-  // Стены
   for (let i = -1; i <= 1; i++) {
     for (let j = 0; j < 3; j++) {
-      if (j < 2 && i === 0) continue; // дверь
+      if (j < 2 && i === 0) continue;
       addBlockToLocation(x + i, j, z, 0xA0522D);
     }
     for (let j = 0; j < 3; j++) addBlockToLocation(x + i, j, z - 1, 0xA0522D);
-    for (let j = 0; j < 3; j++) { addBlockToLocation(x - 1, j, z - 1, 0xA0522D); addBlockToLocation(x + 1, j, z - 1, 0xA0522D); }
   }
-  // Крыша
   for (let i = -1; i <= 1; i++) {
     for (let k = -1; k <= 0; k++) {
       const roof = new THREE.Mesh(
@@ -1629,26 +1494,21 @@ function addBlockToLocation(x, y, z, color) {
       ctx.fillRect(Math.floor(Math.random()*16), Math.floor(Math.random()*16), 1, 1);
     }
   });
-  const mesh = new THREE.Mesh(
-    new THREE.BoxGeometry(1, 1, 1),
-    new THREE.MeshLambertMaterial({ map: tex })
-  );
+  const mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshLambertMaterial({ map: tex }));
   mesh.position.set(x + 0.5, y + 0.5, z + 0.5);
   mesh.castShadow = true; mesh.receiveShadow = true;
   scene.add(mesh);
   locationObjects.push(mesh);
 }
 
-// ==================== КОНСТРУКТОР АНИМАЦИЙ ====================
+// ==================== КОНСТРУКТОР ====================
 let timelineFrames = 20;
 let currentFrame = 0;
 let keyframes = [];
 let customPlayTime = 0;
 const CUSTOM_FPS = 20;
-
 const animatableParts = ['head', 'body', 'rightArm', 'leftArm', 'rightLeg', 'leftLeg', 'root'];
 const partNames = { head: 'Голова', body: 'Тело', rightArm: 'Пр.рука', leftArm: 'Лев.рука', rightLeg: 'Пр.нога', leftLeg: 'Лев.нога', root: 'Корень' };
-
 let selectedPart = 'head';
 
 function getPartObject(part) {
@@ -1877,12 +1737,11 @@ function updateAnimation(dt) {
       break;
     }
     case 'bow_shoot': {
-      rightArm.rotation.x = -1.5;
       rightArm.rotation.z = -0.2;
-      leftArm.rotation.x = -1.3;
       leftArm.rotation.z = 0.4;
       const pull = Math.sin(t*2) * 0.5 + 0.5;
       rightArm.rotation.x = -1.3 - pull * 0.3;
+      leftArm.rotation.x = -1.3;
       break;
     }
     case 'eat': {
@@ -1901,9 +1760,8 @@ function updateAnimation(dt) {
   }
 }
 
-// ==================== СТРОИТЕЛЬСТВО ====================
+// ==================== РЕЖИМЫ ====================
 const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
 const teleportIndicator = document.getElementById('teleport-indicator');
 let teleportTarget = new THREE.Vector3();
 
@@ -1918,7 +1776,6 @@ function getPointerNDC(clientX, clientY) {
 function getGroundIntersect(clientX, clientY) {
   const ndc = getPointerNDC(clientX, clientY);
   raycaster.setFromCamera(new THREE.Vector2(ndc.x, ndc.y), camera);
-  // Сначала ищем пересечение с блоками
   const blockHits = raycaster.intersectObjects(placedBlocks, false);
   if (blockHits.length > 0) {
     const hit = blockHits[0];
@@ -1930,7 +1787,6 @@ function getGroundIntersect(clientX, clientY) {
       gridPos: { x: pos.x + normal.x, y: pos.y + normal.y, z: pos.z + normal.z }
     };
   }
-  // Иначе с полом (y=0)
   const plane = new THREE.Plane(new THREE.Vector3(0,1,0), 0);
   const intersect = new THREE.Vector3();
   if (raycaster.ray.intersectPlane(plane, intersect)) {
@@ -1942,19 +1798,14 @@ function getGroundIntersect(clientX, clientY) {
   return null;
 }
 
-// Состояние для определения долгого нажатия
 let pointerDownTime = 0;
 let pointerDownPos = { x: 0, y: 0 };
 let longPressTimer = null;
-let currentPointerType = '';
 
 renderer.domElement.addEventListener('pointerdown', (e) => {
-  currentPointerType = e.pointerType;
   pointerDownTime = Date.now();
   pointerDownPos = { x: e.clientX, y: e.clientY };
-
   if (buildMode) {
-    // Долгое нажатие = удаление блока
     longPressTimer = setTimeout(() => {
       const hit = getGroundIntersect(e.clientX, e.clientY);
       if (hit && hit.type === 'block') {
@@ -1964,7 +1815,6 @@ renderer.domElement.addEventListener('pointerdown', (e) => {
       }
     }, 600);
   } else if (controlMode === 'teleport') {
-    // Показать индикатор
     const ndc = getPointerNDC(e.clientX, e.clientY);
     raycaster.setFromCamera(new THREE.Vector2(ndc.x, ndc.y), camera);
     const plane = new THREE.Plane(new THREE.Vector3(0,1,0), 0);
@@ -1981,38 +1831,28 @@ renderer.domElement.addEventListener('pointerdown', (e) => {
 });
 
 renderer.domElement.addEventListener('pointermove', (e) => {
-  // Отмена долгого нажатия если сильно сдвинули
   if (longPressTimer) {
     const dx = e.clientX - pointerDownPos.x;
     const dy = e.clientY - pointerDownPos.y;
-    if (dx*dx + dy*dy > 100) {
-      clearTimeout(longPressTimer);
-      longPressTimer = null;
-    }
+    if (dx*dx + dy*dy > 100) { clearTimeout(longPressTimer); longPressTimer = null; }
   }
 });
 
 renderer.domElement.addEventListener('pointerup', (e) => {
-  if (longPressTimer) {
-    clearTimeout(longPressTimer);
-    longPressTimer = null;
-  }
+  if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
   const elapsed = Date.now() - pointerDownTime;
   const dx = e.clientX - pointerDownPos.x;
   const dy = e.clientY - pointerDownPos.y;
   const moved = Math.sqrt(dx*dx + dy*dy);
-
-  // Короткий тап = действие
   if (elapsed < 500 && moved < 10) {
     if (buildMode) {
       const hit = getGroundIntersect(e.clientX, e.clientY);
       if (hit) {
         const type = document.getElementById('buildBlock').value;
         placeBlock(hit.gridPos.x, hit.gridPos.y, hit.gridPos.z, type);
-        setStatus(`🧱 ${BLOCK_TYPES[type] ? type : 'блок'} поставлен`);
+        setStatus(`🧱 Блок поставлен`);
       }
     } else if (controlMode === 'teleport') {
-      // Телепорт
       const start = controls.target.clone();
       const end = teleportTarget.clone();
       end.y = 1.2;
@@ -2038,7 +1878,6 @@ renderer.domElement.addEventListener('pointerup', (e) => {
 const statusEl = document.getElementById('status');
 function setStatus(m) { statusEl.textContent = m; }
 
-// --- СКИНЫ ---
 document.getElementById('skinInput').addEventListener('change', e => {
   const f = e.target.files[0]; if (!f) return;
   const r = new FileReader();
@@ -2075,19 +1914,10 @@ document.getElementById('loadSkin').addEventListener('click', () => {
   img.onerror = () => setStatus('❌ Не удалось. Загрузи PNG вручную.');
   img.src = `https://mc-heads.net/skin/${encodeURIComponent(n)}`;
 });
-
-// --- КАТЕГОРИИ ПРЕДМЕТОВ ---
-document.getElementById('itemCategory').onchange = e => {
-  buildItemGrid(e.target.value);
-};
+document.getElementById('itemCategory').onchange = e => buildItemGrid(e.target.value);
 buildItemGrid('swords');
+document.getElementById('handSelect').onchange = e => { currentHand = e.target.value; updateHeldItem(); };
 
-document.getElementById('handSelect').onchange = e => {
-  currentHand = e.target.value;
-  updateHeldItem();
-};
-
-// --- ЛОКАЦИИ ---
 document.querySelectorAll('.loc-btn').forEach(btn => {
   btn.onclick = () => {
     document.querySelectorAll('.loc-btn').forEach(b => b.classList.remove('active'));
@@ -2095,28 +1925,17 @@ document.querySelectorAll('.loc-btn').forEach(btn => {
     generateLocation(btn.dataset.loc);
   };
 });
-document.getElementById('regenerateLoc').onclick = () => {
-  generateLocation(currentLocation);
-};
-document.getElementById('locDensity').oninput = () => {
-  // Не генерируем сразу — только при клике
-};
+document.getElementById('regenerateLoc').onclick = () => generateLocation(currentLocation);
 
-// --- СТРОИТЕЛЬСТВО ---
 document.getElementById('toggleBuild').onclick = () => {
   buildMode = !buildMode;
   document.getElementById('buildModeIndicator').classList.toggle('active', buildMode);
-  document.getElementById('toggleBuild').classList.toggle('orange', buildMode);
-  setStatus(buildMode ? '🧱 Строительство: тап по сцене' : '👁️ Режим осмотра');
+  setStatus(buildMode ? '🧱 Строительство' : '👁️ Осмотр');
 };
 document.getElementById('clearBuild').onclick = () => {
-  if (confirm('Удалить все блоки?')) {
-    clearAllBlocks();
-    setStatus('🗑️ Все блоки удалены');
-  }
+  if (confirm('Удалить все блоки?')) { clearAllBlocks(); setStatus('🗑️ Удалены'); }
 };
 
-// --- АНИМАЦИИ ---
 document.getElementById('animSelect').onchange = e => {
   animationState = e.target.value;
   animTime = 0; customPlayTime = 0;
@@ -2129,7 +1948,6 @@ document.getElementById('playBtn').onclick = () => { isPlaying = true; setStatus
 document.getElementById('pauseBtn').onclick = () => { isPlaying = false; setStatus('⏸'); };
 document.getElementById('speedRange').oninput = e => { animSpeed = parseFloat(e.target.value); };
 
-// --- ФОН ---
 document.getElementById('bgColor').oninput = e => {
   document.getElementById('bgPreset').value = 'custom';
   scene.background = new THREE.Color(e.target.value);
@@ -2143,36 +1961,23 @@ document.getElementById('bgHue').oninput = e => {
 };
 document.getElementById('bgPreset').onchange = e => {
   const colors = { day: 0x87CEEB, sunset: 0xFFA07A, night: 0x191970, nether: 0x5C1010, end: 0x1A0033, green: 0x00FF00, blue: 0x0000FF };
-  if (e.target.value === 'custom') {
-    scene.background = new THREE.Color(document.getElementById('bgColor').value);
-  } else {
-    scene.background = new THREE.Color(colors[e.target.value] || 0x87CEEB);
-  }
+  if (e.target.value === 'custom') scene.background = new THREE.Color(document.getElementById('bgColor').value);
+  else scene.background = new THREE.Color(colors[e.target.value] || 0x87CEEB);
 };
 
-// --- УПРАВЛЕНИЕ ---
 document.getElementById('controlMode').onchange = e => {
   controlMode = e.target.value;
-  if (controlMode === 'orbit') {
-    controls.enabled = true; controls.enablePan = true;
-    setStatus('🖱️ Орбита');
-  } else if (controlMode === 'teleport') {
-    controls.enabled = false;
-    setStatus('🎯 Телепорт');
-  } else if (controlMode === 'follow') {
-    controls.enabled = true; controls.enablePan = false;
-    setStatus('📷 Следит');
-  }
+  if (controlMode === 'orbit') { controls.enabled = true; controls.enablePan = true; setStatus('🖱️ Орбита'); }
+  else if (controlMode === 'teleport') { controls.enabled = false; setStatus('🎯 Телепорт'); }
+  else if (controlMode === 'follow') { controls.enabled = true; controls.enablePan = false; setStatus('📷 Следит'); }
 };
 
-// --- СКРИНШОТ / ЗАПИСЬ ---
 document.getElementById('screenshotBtn').onclick = () => {
   renderer.render(scene, camera);
   const url = renderer.domElement.toDataURL('image/png');
   const a = document.createElement('a');
   a.download = `skin-${Date.now()}.png`;
-  a.href = url;
-  a.click();
+  a.href = url; a.click();
   setStatus('📸 Сохранено');
 };
 let mediaRecorder = null, chunks = [];
@@ -2208,7 +2013,6 @@ document.getElementById('stopRecordBtn').onclick = () => {
   document.getElementById('stopRecordBtn').style.display = 'none';
 };
 
-// --- ПАНЕЛЬ ПОВОРОТОВ ---
 document.getElementById('toggleAnimPanel').onclick = () => {
   document.getElementById('anim-panel').classList.toggle('open');
 };
@@ -2252,7 +2056,6 @@ document.getElementById('resetPart').onclick = () => {
   document.getElementById('rotZVal').textContent = '0°';
 };
 
-// --- ТАЙМЛАЙН ---
 document.getElementById('toggleTimelineBtn').onclick = () => {
   document.getElementById('timeline').classList.toggle('hidden');
 };
@@ -2274,7 +2077,6 @@ document.getElementById('tlClear').onclick = () => {
 };
 document.getElementById('tlSlider').oninput = e => setCurrentFrame(parseInt(e.target.value));
 
-// --- СОХРАНЕНИЕ АНИМАЦИЙ ---
 document.getElementById('saveAnimBtn').onclick = () => {
   const data = { name: document.getElementById('animName').value, frames: timelineFrames, keyframes };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -2322,7 +2124,6 @@ document.getElementById('newAnimBtn').onclick = () => {
   }
 };
 
-// --- МЕНЮ / СЕКЦИИ ---
 document.getElementById('menuToggle').onclick = () => {
   document.getElementById('sidebar').classList.toggle('open');
 };
@@ -2364,7 +2165,7 @@ buildSkinModel(createDefaultSkin());
 buildTimelineUI();
 document.querySelector('#partButtons button[data-part="head"]').classList.add('active');
 animate();
-setStatus('✅ Готово! Выбери предмет и локацию');
+setStatus('✅ Готово! Версия 2.1');
 </script>
 </body>
-       </html>
+ </html>
